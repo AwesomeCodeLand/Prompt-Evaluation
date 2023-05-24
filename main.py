@@ -8,6 +8,7 @@ from log import output_log
 from const_var import BadRequestStatusCode, RouterEvaluation
 from similarity import similarity_score, style_score
 from wrap import chatWithOpenAI
+from fluency import grammar_score
 
 app = Flask(__name__)
 
@@ -62,7 +63,8 @@ def Evaluation():
     st_score = style_score(response, params["stand"]["answer"])
     output_log(st_score, "chatWithOpenAI return st_score", "info")
 
-    return {"similarity": {"similarity_score": ss_score, "style_score": st_score}}, 200
+    fluency_score = grammar_score(params["eval"]["messages"][0]["content"])
+    return {"similarity": {"similarity_score": ss_score, "style_score": st_score}, "fluency_score": fluency_score}, 200
 
 
 if __name__ == "__main__":
