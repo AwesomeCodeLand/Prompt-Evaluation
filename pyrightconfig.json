@@ -1,0 +1,6 @@
+{
+    "reportGeneralTypeIssues": false,
+    "include": ["src"],
+    "exclude": ["**/node_modules", "**/__pycache__"],
+    "venvPath": ".venv"
+}

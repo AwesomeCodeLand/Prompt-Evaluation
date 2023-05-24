@@ -2,8 +2,15 @@
 Similarity measures for comparing two content.
 """
 
-import math
-from openai import embadingWithOpenAI
+from wrap import embadingWithOpenAI, style
+from prompt import StylePrompt
+from log import output_log
+from cosine_tools import IfIDFSimiliar
+import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+import numpy as np
 
 
 def similarity_score(predice, stand):
@@ -16,13 +23,45 @@ def similarity_score(predice, stand):
     """
 
     # get the vector of predice and stand
-    predice_vector = get_vector(predice)
-    stand_vector = get_vector(stand)
+    output_log(predice, "predice_similarity_score", "info")
+    output_log(stand, "stand_similarity_score", "info")
 
-    # calculate the similarity score
-    similarity_score = cosine_similarity(predice_vector, stand_vector)
+    return IfIDFSimiliar(predice, stand)
 
-    return similarity_score
+
+def style_score(predice, stand):
+    """
+    This function is used to calculate the style score.
+        predice: the prediced content(openai return).
+        stand: the standard content(user supply).
+    Use cosin similarity to calculate the style score.
+    Return a style score.
+    """
+
+    # warp the predice and stand with StylePrompt
+    predice = predice.replace(" ", "").replace("\n", "")
+    stand = stand.replace(" ", "").replace("\n", "")
+
+    if predice == stand:
+        return 1.0
+    if predice != "" and stand == "":
+        return 0.0
+    if predice == "" and stand != "":
+        return 0.0
+
+    if predice != "":
+        predice = StylePrompt.format(predice)
+    if stand != "":
+        stand = StylePrompt.format(stand)
+
+    predice_sytle = style(predice)
+    stand_sytle = style(stand)
+    output_log(predice_sytle, "predice_sytle", "info")
+    output_log(stand_sytle, "stand_sytle", "info")
+
+    # calculate the style score
+    return cosine_similar(predice_sytle, stand_sytle)
+
 
 def get_vector(content):
     """
@@ -32,27 +71,18 @@ def get_vector(content):
 
     return embadingWithOpenAI(content)
 
-def cosine_similarity(v1, v2):
+
+def cosine_similar(vector1, vector2):
     """
-    This function is used to calculate the cosine similarity of two vectors.
+    This function is used to calculate the cosine similarity of two strings use IF-IDF.
     Return a cosine similarity.
     """
+    v1 = vector1.split()
+    v2 = vector2.split()
 
-    # calculate the dot product of v1 and v2
-    dot_product = 0
-    for i in range(len(v1)):
-        dot_product += v1[i] * v2[i]
-
-    # calculate the norm of v1 and v2
-    norm_v1 = 0
-    norm_v2 = 0
-    for i in range(len(v1)):
-        norm_v1 += v1[i] * v1[i]
-        norm_v2 += v2[i] * v2[i]
-    norm_v1 = math.sqrt(norm_v1)
-    norm_v2 = math.sqrt(norm_v2)
-
-    # calculate the cosine similarity
-    cosine_similarity = dot_product / (norm_v1 * norm_v2)
-
-    return cosine_similarity
+    vectorizer = TfidfVectorizer()
+    tfidf = vectorizer.fit_transform([v1, v2])
+    tfidf_array = tfidf.toarray()
+    return cosine_similarity(
+        tfidf_array[0].reshape(1, -1), tfidf_array[1].reshape(1, -1)
+    )[0][0]
