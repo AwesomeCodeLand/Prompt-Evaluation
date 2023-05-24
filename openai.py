@@ -36,7 +36,7 @@ def chatWithOpenAI(params):
 
     response = openai.ChatCompletion.create(
         model=params["model"],
-        prompt=params["prompt"],
+        messages=params["messages"],
         max_tokens=params["max_tokens"],
         temperature=params["temperature"],
         top_p=params["top_p"],
@@ -55,4 +55,26 @@ def chatWithOpenAI(params):
     if "error" in response:
         return response["error"]
 
-    return response["choices"][0]["text"]
+    return response["choices"][0]["message"]["content"]
+
+
+def style(content):
+    """
+    Get the content style data from OpenAI.
+    """
+    params = {
+        "model": "gpt-3.5-turbo",
+        "messages": [
+            {"role": "system", "content": ""},
+            {
+                "role": "user",
+                "content": content,
+            },
+        ],
+        "temperature": 0,
+        "max_tokens": 2000,
+        "frequency_penalty": 0,
+        "presence_penalty": 2,
+    }
+
+    return chatWithOpenAI(params)

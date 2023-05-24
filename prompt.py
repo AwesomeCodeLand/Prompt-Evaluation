@@ -1,1 +1,5 @@
-# 
+# style prompt
+
+StylePrompt = """
+
+"""
