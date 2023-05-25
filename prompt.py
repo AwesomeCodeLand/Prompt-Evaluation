@@ -24,18 +24,19 @@ GrammarPrompt_ZH = """
 
 “2020年，刘某慧在网络发声，自称受到MCN公司总经理孙灏羽性骚扰。网红夫妇姚某杰和陈某雨随后公开发布视频表示支持，还称该公司骗了他们。孙灏羽随后表示，刘某慧和姚某杰夫妇的指控不实。”
 打分后为:
-{
+{{
 "content": 10,
 "grammar":10,
 "error":9,
 "logic":10
-}
+}}
 
 请你理解示例后，为下面这段话进行打分，不需要输出打分理由。
 {}
 
 打分后为:
 """
+
 GrammerPrompt_EN = """
 Please provide quantitative scores for the Chinese content provided from the following dimensions, with a score range of 0-10. The higher the quality, the higher the score. The dimensions you need to consider are:
 1。 Is the content description clear and expressed in content. For example, 'I ate a cake this morning' is a clear description. And 'I eat in the morning' belongs to unclear description
@@ -48,12 +49,12 @@ Please learn the following example:
 "In 2020, Liu Mouhui made a statement online claiming to have been sexually harassed by Sun Haoyu, the general manager of MCN Company. The internet celebrity couple Yao Moujie and Chen Mouyu subsequently released a video expressing their support and claiming that the company had deceived them. Sun Haoyu later stated that the accusations made by Liu Mouhui and Yao Moujie were untrue"
 After scoring, it will be:
 
-{
+{{
 "content": 10,
 "grammar":10,
 "error":9,
 "logic":10
-}
+}}
 
 After understanding the example, please rate the following paragraph without outputting the reason for the rating.
 ``{}``
