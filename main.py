@@ -5,10 +5,15 @@ from flask import Flask, request
 from log import output_log
 
 # from tools import chatWithOpenAI
-from const_var import BadRequestStatusCode, RouterEvaluation, RouterFluency
+from const_var import (
+    BadRequestStatusCode,
+    RouterEvaluation,
+    RouterFluency,
+    RouterUnderstand,
+)
 from similarity import similarity_score, style_score
 from wrap import chatWithOpenAI
-from fluency import grammar_score
+from fluency import grammar_score, understanding_score
 
 app = Flask(__name__)
 
@@ -96,6 +101,23 @@ def Fluency():
     fluency_score = grammar_score(params["eval"]["messages"][0]["content"])
     return {
         "fluency_score": fluency_score,
+    }, 200
+
+
+@app.route(RouterUnderstand, methods=["POST"])
+def Understand():
+    """
+    This function is used to evaluate the performance of the prompt.
+    It receives a prompt and returns a score.
+    The score contains:
+
+    """
+    params = request.get_json()
+    understand_score = understanding_score(
+        params["eval"]["messages"][0]["content"], params["stand"]["answer"]
+    )
+    return {
+        "understanding_score": understand_score,
     }, 200
 
 

@@ -1,6 +1,8 @@
 import json
 from models.fluency import FluencyScore
-from wrap import fluency
+from wrap import fluency, understand
+from log import output_log
+from cosine_tools import IfIDFSimiliar
 
 
 def grammar_score(content):
@@ -15,16 +17,21 @@ def grammar_score(content):
         return FluencyScore(0.0, 0.0, 0.0, 0.0)
 
     score = fluency(content)
-
+    output_log(score, "grammar_score", "info")
     data = json.loads(score)
 
     return FluencyScore(data["content"], data["grammar"], data["error"], data["logic"])
 
 
-def understanding_score(content):
+def understanding_score(content, stand):
     """
     This function is used to calculate the understanding score.
         content: the content to be checked.
     Return a understanding score.
     """
-    return
+    if content == "":
+        return 0.0
+
+    myUnderStand = understand(content)
+
+    return IfIDFSimiliar(myUnderStand, stand)
