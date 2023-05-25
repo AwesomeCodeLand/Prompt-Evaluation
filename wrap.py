@@ -118,3 +118,26 @@ def understand(content):
     }
 
     return chatWithOpenAI(params)
+
+
+def divergence(content):
+    """
+    Get the content divergence data from openai.
+    """
+
+    params = {
+        "model": "gpt-3.5-turbo",
+        "messages": [
+            {"role": "system", "content": ""},
+            {
+                "role": "user",
+                "content": content,
+            },
+        ],
+        "temperature": 0,
+        "max_tokens": 2000,
+        "frequency_penalty": 0,
+        "presence_penalty": 2,
+    }
+
+    return chatWithOpenAI(params)

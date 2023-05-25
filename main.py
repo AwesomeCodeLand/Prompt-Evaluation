@@ -11,10 +11,13 @@ from const_var import (
     RouterEvaluation,
     RouterFluency,
     RouterUnderstand,
+    RouterDivergence,
 )
 from similarity import similarity_score, style_score
 from wrap import chatWithOpenAI
 from fluency import grammar_score, understanding_score
+from divergence import divergence_score
+
 
 app = Flask(__name__)
 
@@ -122,6 +125,24 @@ def Understand():
     )
     return {
         "understanding_score": understand_score,
+    }, 200
+
+
+@app.route(RouterDivergence, methods=["POST"])
+def Divergence():
+    """
+    This function is used to evaluate the performance of the prompt.
+    It receives a prompt and returns a score.
+    The score contains:
+
+    """
+    params = request.get_json()
+    diver_score = divergence_score(
+        params["eval"]["messages"][0]["content"], params["stand"]["answer"]
+    )
+
+    return {
+        "divergence_score": diver_score,
     }, 200
 
 

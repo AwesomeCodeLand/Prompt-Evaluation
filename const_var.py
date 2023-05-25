@@ -2,6 +2,7 @@ RouterRoot = "/"
 RouterEvaluation = "/v1/evaluation"
 RouterFluency = "/v1/fluency"
 RouterUnderstand = "/v1/understand"
+RouterDivergence = "/v1/divergence"
 
 BadRequestStatusCode = 400
 
