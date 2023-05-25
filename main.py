@@ -1,3 +1,4 @@
+import json
 import logging
 import sys
 import os
@@ -99,9 +100,12 @@ def Fluency():
     """
     params = request.get_json()
     fluency_score = grammar_score(params["eval"]["messages"][0]["content"])
-    return {
-        "fluency_score": fluency_score,
-    }, 200
+    response_data = {
+        "fluency_score": fluency_score.__dict__,
+    }
+    response_json = json.dumps(response_data)
+
+    return response_json, 200
 
 
 @app.route(RouterUnderstand, methods=["POST"])
