@@ -3,6 +3,7 @@ import os
 from const_var import EMBEDDING_MODEL, OPENAI_API_KEY
 import numpy as np
 from log import output_log
+from exceptions import OpenAIException
 
 
 def openaiKey():
@@ -30,21 +31,26 @@ def chatWithOpenAI(params):
 
     output_log("invoke openai chat api", "chatWithOpenAI", "info")
     openai.api_key = openaiKey()
-    response = openai.ChatCompletion.create(
-        model=params["model"],
-        messages=params["messages"],
-        max_tokens=params.get("max_tokens", 200),
-        temperature=params.get("temperature", 0.7),
-        top_p=params.get("top_p", 1),
-        frequency_penalty=params.get("frequency_penalty", 0),
-        presence_penalty=params.get("presence_penalty", 1),
-        stop=params.get("stop", ""),
-        n=params.get("n", 1),
-        stream=False,
-    )
+    # try catch the error
+    try:
+        response = openai.ChatCompletion.create(
+            model=params["model"],
+            messages=params["messages"],
+            max_tokens=params.get("max_tokens", 200),
+            temperature=params.get("temperature", 0.7),
+            top_p=params.get("top_p", 1),
+            frequency_penalty=params.get("frequency_penalty", 0),
+            presence_penalty=params.get("presence_penalty", 1),
+            stop=params.get("stop", ""),
+            n=params.get("n", 1),
+            stream=False,
+        )
 
-    output_log(response, "openai chat api response", "info")
-    return response["choices"][0]["message"]["content"]
+        output_log(response, "openai chat api response", "info")
+        return response["choices"][0]["message"]["content"]
+    except Exception as e:
+        output_log(e, "openai chat api error", "error")
+        raise OpenAIException(e)
 
 
 def style(content):
@@ -67,6 +73,7 @@ def style(content):
     }
 
     return chatWithOpenAI(params)
+
 
 def fluency(content):
     """
