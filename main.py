@@ -64,7 +64,10 @@ def Evaluation():
     output_log(st_score, "chatWithOpenAI return st_score", "info")
 
     fluency_score = grammar_score(params["eval"]["messages"][0]["content"])
-    return {"similarity": {"similarity_score": ss_score, "style_score": st_score}, "fluency_score": fluency_score}, 200
+    return {
+        "similarity": {"similarity_score": ss_score, "style_score": st_score},
+        "fluency_score": fluency_score,
+    }, 200
 
 
 if __name__ == "__main__":

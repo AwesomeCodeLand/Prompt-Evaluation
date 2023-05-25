@@ -3,7 +3,7 @@ import os
 from const_var import EMBEDDING_MODEL, OPENAI_API_KEY
 import numpy as np
 from log import output_log
-from exceptions import OpenAIException
+from exceptions.openaiException import OpenAIException
 
 
 def openaiKey():
