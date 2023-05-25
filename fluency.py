@@ -3,6 +3,7 @@ from models.fluency import FluencyScore
 from wrap import fluency, understand
 from log import output_log
 from cosine_tools import IfIDFSimiliar
+from prompt import GrammarPrompt_ZH, UnderstandingPrompt_ZH
 
 
 def grammar_score(content):
@@ -15,8 +16,7 @@ def grammar_score(content):
 
     if content == "":
         return FluencyScore(0.0, 0.0, 0.0, 0.0)
-
-    score = fluency(content)
+    score = fluency(GrammarPrompt_ZH.format(content))
     output_log(score, "grammar_score", "info")
     data = json.loads(score)
 
@@ -32,6 +32,6 @@ def understanding_score(content, stand):
     if content == "":
         return 0.0
 
-    myUnderStand = understand(content)
+    myUnderStand = understand(UnderstandingPrompt_ZH.format(content))
 
     return IfIDFSimiliar(myUnderStand, stand)
