@@ -5,7 +5,7 @@ from flask import Flask, request
 from log import output_log
 
 # from tools import chatWithOpenAI
-from const_var import BadRequestStatusCode, RouterEvaluation
+from const_var import BadRequestStatusCode, RouterEvaluation, RouterFluency
 from similarity import similarity_score, style_score
 from wrap import chatWithOpenAI
 from fluency import grammar_score
@@ -41,9 +41,23 @@ def Evaluation():
     # receive the prompt from request
     # the body of request is a json file, which is openai chat api params
     # like:
-    # {
-    #   "eval":{"prompt": "I am a student.", "max_tokens": 5, "temperature": 0.9},
-    #   "stand":{"answer":"xxx"}
+    #     {
+    #     "eval": {
+    #         "model": "gpt-3.5-turbo",
+    #         "messages": [
+    #             {
+    #                 "role": "user",
+    #                 "content": ""
+    #             }
+    #         ],
+    #         "temperature": 0,
+    #         "max_tokens": 2300,
+    #         "frequency_penalty": 0,
+    #         "presence_penalty": 2
+    #     },
+    #     "stand": {
+    #         "answer": ""
+    #     }
     # }
 
     params = request.get_json()
@@ -66,6 +80,21 @@ def Evaluation():
     fluency_score = grammar_score(params["eval"]["messages"][0]["content"])
     return {
         "similarity": {"similarity_score": ss_score, "style_score": st_score},
+        # "fluency_score": fluency_score,
+    }, 200
+
+
+@app.route(RouterFluency, methods=["POST"])
+def Fluency():
+    """
+    This function is used to evaluate the performance of the prompt.
+    It receives a prompt and returns a score.
+    The score contains:
+
+    """
+    params = request.get_json()
+    fluency_score = grammar_score(params["eval"]["messages"][0]["content"])
+    return {
         "fluency_score": fluency_score,
     }, 200
 
