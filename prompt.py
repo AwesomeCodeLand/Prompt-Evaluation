@@ -22,7 +22,8 @@ GrammarPrompt_ZH = """
 
 请你学习下面的示例:
 
-“2020年，刘某慧在网络发声，自称受到MCN公司总经理孙灏羽性骚扰。网红夫妇姚某杰和陈某雨随后公开发布视频表示支持，还称该公司骗了他们。孙灏羽随后表示，刘某慧和姚某杰夫妇的指控不实。”打分后为:
+“2020年，刘某慧在网络发声，自称受到MCN公司总经理孙灏羽性骚扰。网红夫妇姚某杰和陈某雨随后公开发布视频表示支持，还称该公司骗了他们。孙灏羽随后表示，刘某慧和姚某杰夫妇的指控不实。”
+打分后为:
 {
 "content": 10,
 "grammar":10,
@@ -32,6 +33,8 @@ GrammarPrompt_ZH = """
 
 请你理解示例后，为下面这段话进行打分，不需要输出打分理由。
 {}
+
+打分后为:
 """
 GrammerPrompt_EN = """
 Please provide quantitative scores for the Chinese content provided from the following dimensions, with a score range of 0-10. The higher the quality, the higher the score. The dimensions you need to consider are:
@@ -65,8 +68,10 @@ UnderstandingPrompt_ZH = """
 2. 使用1234序列的方式复述理解。例如: 1. 2. 3.
 
 下面是你将理解的内容:
-~~
+~
+{}
+~
 
 请开始复述你的理解:
-{}
+
 """
