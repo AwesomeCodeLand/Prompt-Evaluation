@@ -9,6 +9,7 @@ from log import output_log
 from const_var import (
     BadRequestStatusCode,
     RouterEvaluation,
+    RouterSimilarity,
     RouterFluency,
     RouterUnderstand,
     RouterDivergence,
@@ -30,8 +31,8 @@ def root():
     return "I am PE(Prompt Evaluation)!"
 
 
-@app.route(RouterEvaluation, methods=["POST"])
-def Evaluation():
+@app.route(RouterSimilarity, methods=["POST"])
+def Similarity():
     """
     This function is used to evaluate the performance of the prompt.
     It receives a prompt and returns a score.
