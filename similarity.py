@@ -60,7 +60,7 @@ def style_score(predice, stand):
     output_log(stand_sytle, "stand_sytle", "info")
 
     # calculate the style score
-    return cosine_similar(predice_sytle, stand_sytle)
+    return IfIDFSimiliar(predice_sytle, stand_sytle)
 
 
 def get_vector(content):
