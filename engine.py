@@ -6,7 +6,7 @@ from wrap import chatWithOpenAI
 from fluency import grammar_score, understanding_score
 from divergence import divergence_score
 from stores.sqlite import finishEvaluationById,failedEvaluationById
-
+from exceptions.openaiException import OpenAIException, SimilarityScoreException, FluencyScoreException, UnderstandScoreException, DivergenceScoreException
 import json
 
 def do_evaluation(id: int, params: GptRequest):
@@ -34,8 +34,28 @@ def do_evaluation(id: int, params: GptRequest):
             "evaluation": evaluation_json
         })
 
+    except OpenAIException as e:
+        failedEvaluationById(id,{
+            "evaluation": "openai "+e.__str__()
+        })
+    except SimilarityScoreException as e:
+        failedEvaluationById(id,{
+            "evaluation": "similarity "+e.__str__()
+        })
+    except FluencyScoreException as e:
+        failedEvaluationById(id,{
+            "evaluation": "fluency "+e.__str__()
+        })
+    except UnderstandScoreException as e:
+        failedEvaluationById(id,{
+            "evaluation": "understand "+e.__str__()
+        })
+    except DivergenceScoreException as e:
+        failedEvaluationById(id,{
+            "evaluation": "divergence "+e.__str__()
+        })
     except Exception as e:
-        output_log(e,"do_similarity",DebugLevel)
+        # output_log(e,"do_similarity",DebugLevel)
         failedEvaluationById(id,{
             "evaluation": e.__str__()
         })
@@ -48,22 +68,25 @@ def do_similarity(params: GptRequest):
         similarity_score: the similarity score between the response and the standard answer
         style_score: the style score between the response and the standard answer
     """
-    eval_params = params.eval
-    response = chatWithOpenAI(params=Eval(
-        model=eval_params.model,
-        messages=eval_params.messages,
-        temperature=eval_params.temperature,
-        max_tokens=eval_params.max_tokens,
-        frequency_penalty=eval_params.frequency_penalty,
-        presence_penalty=eval_params.presence_penalty
-    ))
+    try:
+        eval_params = params.eval
+        response = chatWithOpenAI(params=Eval(
+            model=eval_params.model,
+            messages=eval_params.messages,
+            temperature=eval_params.temperature,
+            max_tokens=eval_params.max_tokens,
+            frequency_penalty=eval_params.frequency_penalty,
+            presence_penalty=eval_params.presence_penalty
+        ))
 
-    ss_score = similarity_score(response, params.stand.answer)
+        ss_score = similarity_score(response, params.stand.answer)
 
-    st_score = style_score(response, params.stand.answer)
-    
+        st_score = style_score(response, params.stand.answer)
+        
 
-    return ss_score, st_score
+        return ss_score, st_score
+    except Exception as e:
+        raise SimilarityScoreException(e.__str__())
 
 def do_fluency(params: GptRequest):
     """
@@ -72,9 +95,13 @@ def do_fluency(params: GptRequest):
     The score contains:
         fluency_score: the fluency score of the prompt
     """
-    return grammar_score(
-        params.eval.messages[0].content,
-    )
+    try:
+        result = grammar_score(
+            params.eval.messages[0].content,
+        )
+        return result
+    except Exception as e:
+        raise FluencyScoreException(e.__str__())
 
 
 def do_understand(params: GptRequest):
@@ -84,10 +111,14 @@ def do_understand(params: GptRequest):
     The score contains:
         understand_score: the understand score of the prompt
     """
-    return  understanding_score(
-        params.eval.messages[0].content,
-        params.stand.answer,
-    )
+    try:
+        result = understanding_score(
+            params.eval.messages[0].content,
+            params.stand.answer,
+        ) 
+        return result
+    except Exception as e:
+        raise UnderstandScoreException(e.__str__())
 
 def do_divergence(params: GptRequest):
     """
@@ -96,8 +127,11 @@ def do_divergence(params: GptRequest):
     The score contains:
         divergence_score: the divergence score of the prompt
     """
-
-    return divergence_score(
-        params.eval.messages[0].content,
-        params.stand.answer,
-    )
+    try:
+        result = divergence_score(
+            params.eval.messages[0].content,
+            params.stand.answer,
+        )
+        return result
+    except Exception as e:
+        raise DivergenceScoreException(e.__str__())
