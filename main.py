@@ -27,6 +27,7 @@ from fluency import grammar_score, understanding_score
 from divergence import divergence_score
 from stores.sqlite import sqliteInit, createPaddingEvaluation,getAllEvaluations
 from engine import do_evaluation
+from result.html import outputWithHtml
 
 sqliteInit()
 # app = Flask(__name__)
@@ -200,8 +201,10 @@ def Evaluation(name: str,params: GptRequest):
 
 @app.get(RouterQueryStatus)
 def QueryStatus():
-    evaluations = getAllEvaluations()
-    return evaluations
+    
+    html = "<h1>Evaluation Status</h1>"
+    html += outputWithHtml()
+    return html
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=15000)
