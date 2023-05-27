@@ -3,6 +3,7 @@ import logging
 import sys
 import os
 import uvicorn
+import threading
 from flask import Flask, request
 from log import output_log
 from typing import Union
@@ -18,13 +19,16 @@ from const_var import (
     RouterFluency,
     RouterUnderstand,
     RouterDivergence,
+    RouterQueryStatus,
 )
 from similarity import similarity_score, style_score
 from wrap import chatWithOpenAI
 from fluency import grammar_score, understanding_score
 from divergence import divergence_score
+from stores.sqlite import sqliteInit, createPaddingEvaluation,getAllEvaluations
+from engine import do_evaluation
 
-
+sqliteInit()
 # app = Flask(__name__)
 app = FastAPI()
 
@@ -178,6 +182,26 @@ def Divergence(params: GptRequest):
         "divergence_score": diver_score,
     }, 200
 
+
+@app.post(RouterEvaluation)
+def Evaluation(name: str,params: GptRequest):
+    output_log(f"new evaluation {name}", RouterEvaluation, "info")
+    
+    id = createPaddingEvaluation({
+        'name':name,
+        'prompt':params.eval.messages[0].content,
+    })
+
+    thread = threading.Thread(target=do_evaluation, args=(id, params))
+    thread.start()
+    return {
+        "id": id,
+    }, 200
+
+@app.get(RouterQueryStatus)
+def QueryStatus():
+    evaluations = getAllEvaluations()
+    return evaluations
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=15000)
