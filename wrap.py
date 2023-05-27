@@ -67,11 +67,13 @@ def chatWithOpenAI(params:Eval):
         #     stream=False,
         # )
         # convert params.messages to json
+        allMsg = []
         msg = [message.toJSON() for message in params.messages]
+        allMsg.append(msg)
 
         response = openai.ChatCompletion.create(
             model=params.model,
-            messages=msg,
+            messages=allMsg,
             # check whether the max_tokens is None
             # if it is None, set it to 200
             max_tokens=params.max_tokens,
