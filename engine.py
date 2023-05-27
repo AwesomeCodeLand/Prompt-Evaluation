@@ -71,10 +71,10 @@ def do_similarity(params: GptRequest):
     """
     try:
         eval_params = params.eval
-        messages = [asdict(m) for m in eval_params.messages]
+        # messages = [asdict(m) for m in eval_params.messages]
         response = chatWithOpenAI(params=Eval(
             model=eval_params.model,
-            messages=messages,
+            messages=eval_params.messages,
             temperature=eval_params.temperature,
             max_tokens=eval_params.max_tokens,
             frequency_penalty=eval_params.frequency_penalty,

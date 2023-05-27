@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Dict, Optional
-
+import json
 # class GptRequest(BaseModel):
     # {
 #     "eval": {
@@ -26,7 +26,9 @@ from typing import List, Dict, Optional
 class Message(BaseModel):
     role: str
     content: str
-
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__, 
+            sort_keys=True, indent=4)
 class Eval(BaseModel):
     model: str
     messages: List[Message]
