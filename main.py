@@ -2,6 +2,7 @@ import json
 import logging
 import sys
 import os
+import uvicorn
 from flask import Flask, request
 from log import output_log
 from typing import Union
@@ -179,6 +180,6 @@ def Divergence(params: GptRequest):
 
 
 if __name__ == "__main__":
-    
+    uvicorn.run(app, host="0.0.0.0", port=15000)
     # disable flask debug mode
-    app.run(host="0.0.0.0", port=15000, debug=True, threaded=True)
+    # app.run(host="0.0.0.0", port=15000, debug=True, threaded=True)
