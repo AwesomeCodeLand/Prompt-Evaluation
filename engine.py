@@ -5,7 +5,7 @@ from similarity import similarity_score, style_score
 from wrap import chatWithOpenAI
 from fluency import grammar_score, understanding_score
 from divergence import divergence_score
-from stores.sqlite import finishEvaluationById
+from stores.sqlite import finishEvaluationById,failedEvaluationById
 
 import json
 
@@ -36,7 +36,7 @@ def do_evaluation(id: int, params: GptRequest):
 
     except Exception as e:
         output_log(e,"do_similarity",DebugLevel)
-        finishEvaluationById(id,{
+        failedEvaluationById(id,{
             "evaluation": e.__str__()
         })
 

@@ -4,12 +4,14 @@ import sys
 import os
 import uvicorn
 import threading
-from flask import Flask, request
+from flask import Flask, render_template
 from log import output_log
 from typing import Union
 from dataclasses import asdict
 
-from fastapi import FastAPI
+from fastapi import FastAPI,Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from models.http import GptRequest,Eval,Message
 # from tools import chatWithOpenAI
 from const_var import (
@@ -28,11 +30,12 @@ from divergence import divergence_score
 from stores.sqlite import sqliteInit, createPaddingEvaluation,getAllEvaluations
 from engine import do_evaluation
 from result.html import outputWithHtml
+from markupsafe import Markup
 
 sqliteInit()
 # app = Flask(__name__)
 app = FastAPI()
-
+templates = Jinja2Templates(directory="templates")
 # app.logger.addHandler(logging.StreamHandler(sys.stdout))
 # app.logger.setLevel(logging.DEBUG)
 
@@ -199,12 +202,12 @@ def Evaluation(name: str,params: GptRequest):
         "id": id,
     }, 200
 
-@app.get(RouterQueryStatus)
-def QueryStatus():
+@app.get(RouterQueryStatus,response_class=HTMLResponse)
+async def QueryStatus(request: Request):
     
-    html = "<h1>Evaluation Status</h1>"
-    html += outputWithHtml()
-    return html
+    # html = "<h1>Evaluation Status</h1>"
+    # html += outputWithHtml()
+    return templates.TemplateResponse("status.html", {"request": request, "output": Markup(outputWithHtml())})
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=15000)
