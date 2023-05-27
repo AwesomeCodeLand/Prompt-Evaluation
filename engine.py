@@ -8,6 +8,7 @@ from divergence import divergence_score
 from stores.sqlite import finishEvaluationById,failedEvaluationById
 from exceptions.openaiException import OpenAIException, SimilarityScoreException, FluencyScoreException, UnderstandScoreException, DivergenceScoreException
 import json
+from dataclasses import asdict
 
 def do_evaluation(id: int, params: GptRequest):
     output_log(params,"do_evaluation",DebugLevel)
@@ -70,9 +71,10 @@ def do_similarity(params: GptRequest):
     """
     try:
         eval_params = params.eval
+        messages = [asdict(m) for m in eval_params.messages]
         response = chatWithOpenAI(params=Eval(
             model=eval_params.model,
-            messages=eval_params.messages,
+            messages=messages,
             temperature=eval_params.temperature,
             max_tokens=eval_params.max_tokens,
             frequency_penalty=eval_params.frequency_penalty,
