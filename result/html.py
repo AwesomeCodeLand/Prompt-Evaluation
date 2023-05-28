@@ -6,18 +6,14 @@ def outputWithHtml():
     """
 
     allRecords = getAllEvaluations()
-        # Create the HTML table
-    htmlTable = "<table>\n<tr><th>ID</th><th>Name</th><th>Prompt</th><th>Response</th><th>Operations</th></tr>\n"
+    # Create the HTML table
+    htmlTable = "<table class='table table-striped'>\n<thead><tr><th>ID</th><th>Name</th><th style='max-width: 50%'>Prompt</th><th style='max-width: 20%'>Response</th><th>Operations</th></tr></thead>\n<tbody>"
     for record in allRecords:
-        # print(record)
+        print(record['id'], record['status'])
         if record['status'] == 'finish':
-            htmlTable += f"<tr><td>{record['id']}</td><td>{record['name']}</td><td>{record['prompt']}</td><td>{record['evaluation']}</td><td><button>get result</button></td></tr>\n"
+            htmlTable += f"<tr><td>{record['id']}</td><td>{record['name']}</td><td style='max-width: 50%'>{record['prompt']}</td><td style='max-width: 20%'>{record['evaluation']}</td><td><button class='btn btn-primary'>get result</button></td></tr>\n"
         else:
-            htmlTable += f"<tr><td>{record['id']}</td><td>{record['name']}</td><td>{record['prompt']}</td><td>{record['evaluation']}</td><td>{record['status']}</td></tr>\n"
-    htmlTable += "</table>"
+            htmlTable += f"<tr><td>{record['id']}</td><td>{record['name']}</td><td style='max-width: 50%'>{record['prompt']}</td><td style='max-width: 20%'>{record['evaluation']}</td><td>{record['status']}</td></tr>\n"
+    htmlTable += "</tbody></table>"
     
-    # Print the HTML table
-    # print(htmlTable)
-    
-    # Return the HTML table
     return htmlTable
