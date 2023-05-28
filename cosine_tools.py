@@ -9,7 +9,7 @@ def IfIDFSimiliar(string1, string2):
 
     # Calculate the TF-IDF vectors of the strings
     vectorizer = TfidfVectorizer()
-    tfidf = vectorizer.fit_transform([string1, string2])
+    tfidf = vectorizer.fit_transform([tokens1, tokens2])
     tfidf_array = tfidf.toarray()
 
     # Calculate the cosine similarity between the TF-IDF vectors
