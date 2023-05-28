@@ -155,7 +155,7 @@ def fluency(content):
     params=Eval(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": ""},
+            # {"role": "system", "content": ""},
             {
                 "role": "user",
                 "content": content,
@@ -177,7 +177,7 @@ def understand(content):
     params=Eval(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": ""},
+            # {"role": "system", "content": ""},
             {
                 "role": "user",
                 "content": content,
@@ -199,7 +199,7 @@ def divergence(content):
     params=Eval(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": ""},
+            # {"role": "system", "content": ""},
             {
                 "role": "user",
                 "content": content,
