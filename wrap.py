@@ -120,7 +120,6 @@ def style(content):
     params=Eval(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": ""},
             {
                 "role": "user",
                 "content": content,
