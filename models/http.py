@@ -2,26 +2,6 @@ from pydantic import BaseModel
 from typing import List, Dict, Optional
 import json
 
-# class GptRequest(BaseModel):
-# {
-#     "eval": {
-#         "model": "gpt-3.5-turbo",
-#         "messages": [
-#             {
-#                 "role": "user",
-#                 "content": ""
-#             }
-#         ],
-#         "temperature": 0,
-#         "max_tokens": 2300,
-#         "frequency_penalty": 0,
-#         "presence_penalty": 2
-#     },
-#     "stand": {
-#         "answer": ""
-#     }
-# }
-
 
 class Message(BaseModel):
     role: str
@@ -56,3 +36,6 @@ class Stand(BaseModel):
 class GptRequest(BaseModel):
     eval: Eval
     stand: Stand
+
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
