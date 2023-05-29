@@ -37,6 +37,7 @@ def do_evaluation(id: int, params: GptRequest):
     output_log(params, "do_evaluation", DebugLevel)
     # get similarity score
     try:
+        create_stage(id, StageInit, [json.dumps(params)], "", StageStatusPadding)
         ss_score, style_score = do_similarity(id, params)
         fluency = do_fluency(id, params)
         divergence = do_divergence(id, params)
@@ -55,7 +56,7 @@ def do_evaluation(id: int, params: GptRequest):
         evaluation_json = json.dumps(evaluation)
 
         finishEvaluationById(id, {"evaluation": evaluation_json})
-
+        update_stage_status(id, StageInit, StageStatusDone)
     except OpenAIException as e:
         failedEvaluationById(id, {"evaluation": "openai " + e.__str__()})
     except SimilarityScoreException as e:
@@ -81,7 +82,6 @@ def do_similarity(id: int, params: GptRequest):
     """
     try:
         eval_params = params.eval
-        create_stage(id, StageInit, [json.dumps(eval_params)], "", StageStatusPadding)
         # messages = [asdict(m) for m in eval_params.messages]
         response = chatWithOpenAI(
             params=Eval(
