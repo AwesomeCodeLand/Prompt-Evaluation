@@ -22,7 +22,7 @@ def sqliteInit():
     )
     c.execute(
         """
-    CREATE TABLE stage (
+    CREATE TABLE IF NOT EXISTS stage (
         id INTEGER PRIMARY KEY,
         eid INTEGER,
         stage TEXT,
@@ -181,7 +181,7 @@ def read_stage(id):
     return cursor.fetchone()
 
 
-def update_stage(id, eid, stage, input, output, status, timestamp):
+def update_stage(id, eid, stage, input, output, status):
     """
     Update a stage record in the database by ID.
     """
@@ -194,6 +194,23 @@ def update_stage(id, eid, stage, input, output, status, timestamp):
         WHERE id = ?
     """,
         (eid, stage, input, output, status, id),
+    )
+    conn.commit()
+
+
+def update_stage_status(eid, stage, status):
+    """
+    Update a stage record in the database by ID.
+    """
+    conn = sqlite3.connect("db/prompt.db")
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        UPDATE stage
+        SET status = ?
+        WHERE eid = ? and stage = ?
+    """,
+        (status, eid, stage),
     )
     conn.commit()
 

@@ -10,3 +10,13 @@ BadRequestStatusCode = 400
 
 OPENAI_API_KEY = "OPENAI_API_KEY"
 EMBEDDING_MODEL = "text-embedding-ada-002"
+
+StageInit = "init"
+StageSimilarity = "do_similarity"
+StageStyle = "do_style"
+StageFluency = "do_fluency"
+StageUnderstand = "do_understand"
+StageDivergence = "do_divergence"
+StageStatusPadding = "status_padding"
+StageStatusDone = "status_done"
+StageStatusFailed = "status_failed"

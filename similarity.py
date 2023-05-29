@@ -9,11 +9,12 @@ from cosine_tools import IfIDFSimiliar
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-
+from stores.sqlite import create_stage
+from const_var import StageSimilarity, StageStyle, StageStatusPadding
 import numpy as np
 
 
-def similarity_score(predice, stand):
+def similarity_score(id, predice, stand):
     """
     This function is used to calculate the similarity score.
         predice: the prediced content(openai return).
@@ -25,11 +26,11 @@ def similarity_score(predice, stand):
     # get the vector of predice and stand
     output_log(predice, "predice_similarity_score", "info")
     output_log(stand, "stand_similarity_score", "info")
-
+    create_stage(id, StageSimilarity, [predice, stand], "", StageStatusPadding)
     return IfIDFSimiliar(predice, stand)
 
 
-def style_score(predice, stand):
+def style_score(id, predice, stand):
     """
     This function is used to calculate the style score.
         predice: the prediced content(openai return).
@@ -53,6 +54,8 @@ def style_score(predice, stand):
         predice = StylePrompt_ZH.format(predice)
     if stand != "":
         stand = StylePrompt_ZH.format(stand)
+
+    create_stage(id, StageStyle, [predice, stand], "", StageStatusPadding)
 
     predice_sytle = style(predice)
     stand_sytle = style(stand)
