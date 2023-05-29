@@ -4,8 +4,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 def IfIDFSimiliar(string1, string2):
     # Tokenize the strings
-    tokens1 = string1.lower().split()
-    tokens2 = string2.lower().split()
+    # tokens1 = string1.lower().split()
+    # tokens2 = string2.lower().split()
 
     # Calculate the TF-IDF vectors of the strings
     vectorizer = TfidfVectorizer()

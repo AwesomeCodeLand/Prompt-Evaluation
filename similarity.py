@@ -3,7 +3,7 @@ Similarity measures for comparing two content.
 """
 
 from wrap import embadingWithOpenAI, style
-from prompt import StylePrompt
+from prompt import StylePrompt_ZH
 from log import output_log
 from cosine_tools import IfIDFSimiliar
 import numpy as np
@@ -50,9 +50,9 @@ def style_score(predice, stand):
         return 0.0
 
     if predice != "":
-        predice = StylePrompt.format(predice)
+        predice = StylePrompt_ZH.format(predice)
     if stand != "":
-        stand = StylePrompt.format(stand)
+        stand = StylePrompt_ZH.format(stand)
 
     predice_sytle = style(predice)
     stand_sytle = style(stand)

@@ -66,9 +66,19 @@ def chatWithOpenAI(params:Eval):
         #     n = params['n'] ,
         #     stream=False,
         # )
+        # convert params.messages to json
+        # allMsg = []
+        # msg = [message.toJSON() for message in params.messages]
+        # allMsg.append(msg)
+
         response = openai.ChatCompletion.create(
             model=params.model,
-            messages=params.messages,
+            messages=[
+                {
+                    "role": params.messages[0].role,
+                    "content": params.messages[0].content,
+                }
+            ],
             # check whether the max_tokens is None
             # if it is None, set it to 200
             max_tokens=params.max_tokens,
@@ -110,7 +120,6 @@ def style(content):
     params=Eval(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": ""},
             {
                 "role": "user",
                 "content": content,
@@ -146,7 +155,7 @@ def fluency(content):
     params=Eval(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": ""},
+            # {"role": "system", "content": ""},
             {
                 "role": "user",
                 "content": content,
@@ -168,7 +177,7 @@ def understand(content):
     params=Eval(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": ""},
+            # {"role": "system", "content": ""},
             {
                 "role": "user",
                 "content": content,
@@ -190,14 +199,14 @@ def divergence(content):
     params=Eval(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": ""},
+            # {"role": "system", "content": ""},
             {
                 "role": "user",
                 "content": content,
             },
         ],
         temperature=0,
-        max_tokens=2000,
+        max_tokens=100,
         frequency_penalty=0,
         presence_penalty=2
     )
