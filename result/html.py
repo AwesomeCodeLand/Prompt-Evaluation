@@ -16,7 +16,7 @@ def outputWithHtml():
         if record["status"] == "finish":
             htmlTable += f"""
             <div class="col-1">{record['id']}</div>
-            <div class="col-2" >{record['name']}</div>
+            <div class="col-1" >{record['name']}</div>
             <div class="col-5" style="word-break: break-all;">{record['evaluation']}</div>
             <div class="col-1"><button class='btn btn-primary' onclick="window.location.href='/v1/query_stage/{record['id']}'">{record['status']}</button></div>
             <div class="col-3" style="word-break: break-all;">{record['prompt']}</div>
@@ -27,7 +27,7 @@ def outputWithHtml():
             <div class="col-2">{record['name']}</div>
             <div class="col-1"><button class='btn btn-primary' onclick="window.location.href='/v1/query_stage/{record['id']}'">{record['status']}</button></div>
             <div class="col-4" style="word-break: break-all;">{record['evaluation']}</div>
-            <div class="col-3" style="word-break: break-all;">{record['prompt']}</div>
+            <div class="col-4" style="word-break: break-all;">{record['prompt']}</div>
             """
     htmlTable += """
     </div>

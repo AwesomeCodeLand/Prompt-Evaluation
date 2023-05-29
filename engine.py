@@ -81,7 +81,7 @@ def do_similarity(id: int, params: GptRequest):
     """
     try:
         eval_params = params.eval
-        create_stage(id, StageInit, [eval_params], "", StageStatusPadding)
+        create_stage(id, StageInit, [json.dumps(eval_params)], "", StageStatusPadding)
         # messages = [asdict(m) for m in eval_params.messages]
         response = chatWithOpenAI(
             params=Eval(
@@ -147,7 +147,7 @@ def do_understand(id: int, params: GptRequest):
         create_stage(
             id,
             StageUnderstand,
-            [params.eval.messages[0].content],
+            [params.eval.messages[0].content, params.stand.answer],
             "",
             StageStatusPadding,
         )
@@ -173,7 +173,7 @@ def do_divergence(id: int, params: GptRequest):
         create_stage(
             id,
             StageDivergence,
-            [params.eval.messages[0].content],
+            [params.eval.messages[0].content, params.stand.answer],
             "",
             StageStatusPadding,
         )
