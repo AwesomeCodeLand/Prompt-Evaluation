@@ -171,13 +171,13 @@ def create_stage(eid, stage, input, output, status):
     return cursor.lastrowid
 
 
-def read_stage(id):
+def get_stage(eid):
     """
     Read a stage record from the database by ID.
     """
     conn = sqlite3.connect("db/prompt.db")
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM stage WHERE id = ?", (id,))
+    cursor.execute("SELECT * FROM stage WHERE eid = ? order by timestamp DESC", (eid,))
     return cursor.fetchone()
 
 

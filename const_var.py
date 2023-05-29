@@ -5,6 +5,7 @@ RouterUnderstand = "/v1/understand"
 RouterDivergence = "/v1/divergence"
 RouterSimilarity = "/v1/similarity"
 RouterQueryStatus = "/v1/query_status"
+RouterQueryStage = "/v1/query_stage/{id}"
 
 BadRequestStatusCode = 400
 

@@ -9,10 +9,11 @@ from log import output_log
 from typing import Union
 from dataclasses import asdict
 
-from fastapi import FastAPI,Request
+from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from models.http import GptRequest,Eval,Message
+from models.http import GptRequest, Eval, Message
+
 # from tools import chatWithOpenAI
 from const_var import (
     BadRequestStatusCode,
@@ -22,14 +23,15 @@ from const_var import (
     RouterUnderstand,
     RouterDivergence,
     RouterQueryStatus,
+    RouterQueryStage,
 )
 from similarity import similarity_score, style_score
 from wrap import chatWithOpenAI
 from fluency import grammar_score, understanding_score
 from divergence import divergence_score
-from stores.sqlite import sqliteInit, createPaddingEvaluation,getAllEvaluations
+from stores.sqlite import sqliteInit, createPaddingEvaluation, getAllEvaluations
 from engine import do_evaluation
-from result.html import outputWithHtml
+from result.html import outputWithHtml, outputStageWithHtml
 from markupsafe import Markup
 
 sqliteInit()
@@ -44,9 +46,11 @@ templates = Jinja2Templates(directory="templates")
 # async def root():
 #     return "I am PE(Prompt Evaluation)!"
 
+
 @app.get("/")
 async def root():
     return "I am PE(Prompt Evaluation)!"
+
 
 # @app.route(RouterSimilarity, methods=["POST"])
 @app.post(RouterSimilarity)
@@ -96,15 +100,17 @@ def Similarity(params: GptRequest):
 
     # invoke openai chat api
     eval_params = params.eval
-    response = chatWithOpenAI(params=Eval(
-        model=eval_params.model,
-        messages=eval_params.messages,
-        temperature=eval_params.temperature,
-        max_tokens=eval_params.max_tokens,
-        frequency_penalty=eval_params.frequency_penalty,
-        presence_penalty=eval_params.presence_penalty
-    ))
-    
+    response = chatWithOpenAI(
+        params=Eval(
+            model=eval_params.model,
+            messages=eval_params.messages,
+            temperature=eval_params.temperature,
+            max_tokens=eval_params.max_tokens,
+            frequency_penalty=eval_params.frequency_penalty,
+            presence_penalty=eval_params.presence_penalty,
+        )
+    )
+
     output_log(response, "chatWithOpenAI return", "info")
 
     # get the similarity score
@@ -152,9 +158,9 @@ def Understand(params: GptRequest):
 
     """
     # get the body from fastapi request
-    
+
     # params = request.get_json()
-    
+
     # understand_score = understanding_score(
     #     params["eval"]["messages"][0]["content"], params["stand"]["answer"]
     # )
@@ -188,13 +194,15 @@ def Divergence(params: GptRequest):
 
 
 @app.post(RouterEvaluation)
-def Evaluation(name: str,params: GptRequest):
+def Evaluation(name: str, params: GptRequest):
     output_log(f"new evaluation {name}", RouterEvaluation, "info")
-    
-    id = createPaddingEvaluation({
-        'name':name,
-        'prompt':params.eval.messages[0].content,
-    })
+
+    id = createPaddingEvaluation(
+        {
+            "name": name,
+            "prompt": params.eval.messages[0].content,
+        }
+    )
 
     thread = threading.Thread(target=do_evaluation, args=(id, params))
     thread.start()
@@ -202,12 +210,20 @@ def Evaluation(name: str,params: GptRequest):
         "id": id,
     }, 200
 
-@app.get(RouterQueryStatus,response_class=HTMLResponse)
+
+@app.get(RouterQueryStatus, response_class=HTMLResponse)
 async def QueryStatus(request: Request):
-    
-    # html = "<h1>Evaluation Status</h1>"
-    # html += outputWithHtml()
-    return templates.TemplateResponse("status.html", {"request": request, "output": Markup(outputWithHtml())})
+    return templates.TemplateResponse(
+        "status.html", {"request": request, "output": Markup(outputWithHtml())}
+    )
+
+
+@app.get(RouterQueryStage, response_class=HTMLResponse)
+async def QueryStage(id: int, request: Request):
+    return templates.TemplateResponse(
+        "stage.html", {"request": request, "output": Markup(outputStageWithHtml(id))}
+    )
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=15000)
