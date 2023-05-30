@@ -39,3 +39,10 @@ class GptRequest(BaseModel):
 
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+
+
+class GptRequestEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, GptRequest):
+            return obj.toJSON()
+        return json.JSONEncoder.default(self, obj)

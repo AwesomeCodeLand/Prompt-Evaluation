@@ -154,7 +154,7 @@ def getAllEvaluations():
     return evaluations
 
 
-def create_stage(eid, stage, input, output, status):
+def create_stage(eid: int, stage: str, input: str, output: str, status: str):
     """
     Create a new stage record in the database.
     """

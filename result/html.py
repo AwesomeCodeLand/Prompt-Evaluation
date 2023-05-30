@@ -46,18 +46,21 @@ def outputStageWithHtml(id: int):
     """
 
     # check if the stage is empty
-    if stage is None or len(stage) == 0:
+    if stage is None:
         htmlTable += "No stage record found."
         htmlTable += """</div>"""
         return htmlTable
 
-    for s in stage:
-        htmlTable += f"""
-        <div class="col-1">{s['eid']}</div>
-        <div class="col-1">{s['stage']}</div>
-        <div class="col-4">{s['input']}</div>
-        <div class="col-1">{s['output']}</div>
-        <div class="col-2">{s['status']}</div>
-        <div class="col-2">{s['timestamp']}</div>
+    htmlTable += f"""
+        <div class="col-1" style="word-break: break-all;">{stage[0]}</div>
+        <div class="col-1" style="word-break: break-all;">{stage[1]}</div>
+        <div class="col-1" style="word-break: break-all;">{stage[2]}</div>
+        <div class="col-4" style="word-break: break-all;">{stage[3].encode('gbk')}</div>
+        <div class="col-1" style="word-break: break-all;">{stage[4].decode('utf-8') if isinstance(stage[4], bytes) else stage[4]}</div>
+        <div class="col-2" style="word-break: break-all;">{stage[5]}</div>
+        <div class="col-2" style="word-break: break-all;">{stage[6]}</div>
         """
+
     htmlTable += """</div>"""
+
+    return htmlTable

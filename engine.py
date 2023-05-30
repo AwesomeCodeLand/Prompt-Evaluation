@@ -1,6 +1,6 @@
 import threading
-from models.http import GptRequest, Eval, Message
-from log import output_log, DebugLevel
+from models.http import GptRequest, Eval, Message, GptRequestEncoder
+from log import output_log, DebugLevel, ErrLevel
 from similarity import similarity_score, style_score
 from wrap import chatWithOpenAI
 from fluency import grammar_score, understanding_score
@@ -37,7 +37,15 @@ def do_evaluation(id: int, params: GptRequest):
     output_log(params, "do_evaluation", DebugLevel)
     # get similarity score
     try:
-        create_stage(id, StageInit, [json.dumps(params)], "", StageStatusPadding)
+        output_log("create stage similarity", "do_evaluation", DebugLevel)
+        create_stage(
+            id,
+            StageInit,
+            json.dumps(params, cls=GptRequestEncoder),
+            "",
+            StageStatusPadding,
+        )
+        output_log("create stage init", "do_evaluation", DebugLevel)
         ss_score, style_score = do_similarity(id, params)
         fluency = do_fluency(id, params)
         divergence = do_divergence(id, params)
@@ -58,17 +66,22 @@ def do_evaluation(id: int, params: GptRequest):
         finishEvaluationById(id, {"evaluation": evaluation_json})
         update_stage_status(id, StageInit, StageStatusDone)
     except OpenAIException as e:
+        output_log(e, "openai", ErrLevel)
         failedEvaluationById(id, {"evaluation": "openai " + e.__str__()})
     except SimilarityScoreException as e:
+        output_log(e, "similarity", ErrLevel)
         failedEvaluationById(id, {"evaluation": "similarity " + e.__str__()})
     except FluencyScoreException as e:
+        output_log(e, "fluency", ErrLevel)
         failedEvaluationById(id, {"evaluation": "fluency " + e.__str__()})
     except UnderstandScoreException as e:
+        output_log(e, "understand", ErrLevel)
         failedEvaluationById(id, {"evaluation": "understand " + e.__str__()})
     except DivergenceScoreException as e:
+        output_log(e, "divergence", ErrLevel)
         failedEvaluationById(id, {"evaluation": "divergence " + e.__str__()})
     except Exception as e:
-        # output_log(e,"do_similarity",DebugLevel)
+        output_log(e, "unknown", ErrLevel)
         failedEvaluationById(id, {"evaluation": e.__str__()})
 
 
