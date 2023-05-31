@@ -50,15 +50,34 @@ def outputStageWithHtml(id: int):
         htmlTable += "No stage record found."
         htmlTable += """</div>"""
         return htmlTable
+    htmlTable += """
+        <div class="col-1" style="word-break: break-all;">ID</div>
+        <div class="col-1" style="word-break: break-all;">EID</div>
+        <div class="col-1" style="word-break: break-all;">STAGE</div>
+        <div class="col-5" style="word-break: break-all;">INPUT</div>
+        <div class="col-1" style="word-break: break-all;">OUTPUT</div>
+        <div class="col-2" style="word-break: break-all;">STATUS</div>
+        <div class="col-1" style="word-break: break-all;">TIMESTAMP</div>
+    """
 
     htmlTable += f"""
+        <hr/>
         <div class="col-1" style="word-break: break-all;">{stage[0]}</div>
         <div class="col-1" style="word-break: break-all;">{stage[1]}</div>
         <div class="col-1" style="word-break: break-all;">{stage[2]}</div>
-        <div class="col-4" style="word-break: break-all;">{stage[3].encode('gbk')}</div>
-        <div class="col-1" style="word-break: break-all;">{stage[4].decode('utf-8') if isinstance(stage[4], bytes) else stage[4]}</div>
+        <div class="col-5" style="word-break: break-all;">{stage[3]
+        .encode("utf-8")
+        .decode("unicode_escape")
+        .encode("utf-8")
+        .decode("unicode_escape")}</div>
+        <div class="col-1" style="word-break: break-all;">{stage[4]
+        .encode("utf-8")
+        .decode("unicode_escape")
+        .encode("utf-8")
+        .decode("unicode_escape")}</div>
         <div class="col-2" style="word-break: break-all;">{stage[5]}</div>
-        <div class="col-2" style="word-break: break-all;">{stage[6]}</div>
+        <div class="col-1" style="word-break: break-all;">{stage[6]}</div>
+        <hr/>
         """
 
     htmlTable += """</div>"""
