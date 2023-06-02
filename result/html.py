@@ -1,4 +1,5 @@
 from stores.sqlite import getAllEvaluations, get_stage
+from const_var import StageStatusFailed
 
 
 def outputWithHtml():
@@ -41,7 +42,7 @@ def outputStageWithHtml(id: int):
     Read all records from prompt.db stage table and output to html format.
     """
     stage = get_stage(id)
-    htmlTable = """
+    htmlTable = f"""
     <div class="row">
     """
 
@@ -75,11 +76,26 @@ def outputStageWithHtml(id: int):
         .decode("unicode_escape")
         .encode("utf-8")
         .decode("unicode_escape")}</div>
+        """
+    if stage[5] == StageStatusFailed:
+        htmlTable += f"""
+        <!-- <div class="col-2" style="word-break: break-all;">{stage[5]}</div> -->
+        <div class="col-2">
+            <form method="POST" action="/v1/stage_restart/{id}/{stage[0]}">
+                <input type="hidden" name="stage_id" value="{stage[0]}">
+                <button type="submit" class='btn btn-primary'>Restart</button>
+            </form>
+        </div>
+        """
+    else:
+        htmlTable += f"""
         <div class="col-2" style="word-break: break-all;">{stage[5]}</div>
+        """
+
+    htmlTable += f"""
         <div class="col-1" style="word-break: break-all;">{stage[6]}</div>
         <hr/>
         """
-
     htmlTable += """</div>"""
 
     return htmlTable

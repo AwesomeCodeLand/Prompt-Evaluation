@@ -171,6 +171,27 @@ def create_stage(eid: int, stage: str, input: str, output: str, status: str):
     return cursor.lastrowid
 
 
+# get specify stage by eid and id
+def getStageById(eid, id):
+    conn = sqlite3.connect("db/prompt.db")
+    c = conn.cursor()
+    c.execute("SELECT * FROM stage WHERE eid = ? AND id = ?", (eid, id))
+    row = c.fetchone()
+    conn.close()
+    if row:
+        return {
+            "id": row[0],
+            "eid": row[1],
+            "stage": row[2],
+            "input": row[3],
+            "output": row[4],
+            "status": row[5],
+            "timestamp": row[6],
+        }
+    else:
+        return None
+
+
 def get_stage(eid):
     """
     Read a stage record from the database by ID.

@@ -1,18 +1,14 @@
 import json
-import logging
-import sys
-import os
 import uvicorn
 import threading
-from flask import Flask, render_template
+
 from log import output_log
-from typing import Union
-from dataclasses import asdict
+
 
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from models.http import GptRequest, Eval, Message
+from models.http import GptRequest, Eval
 
 # from tools import chatWithOpenAI
 from const_var import (
@@ -24,13 +20,14 @@ from const_var import (
     RouterDivergence,
     RouterQueryStatus,
     RouterQueryStage,
+    RouterStageRestart,
 )
 from similarity import similarity_score, style_score
 from wrap import chatWithOpenAI
 from fluency import grammar_score, understanding_score
 from divergence import divergence_score
 from stores.sqlite import sqliteInit, createPaddingEvaluation, getAllEvaluations
-from engine import do_evaluation
+from engine import do_evaluation, restart
 from result.html import outputWithHtml, outputStageWithHtml
 from markupsafe import Markup
 
@@ -223,6 +220,11 @@ async def QueryStage(id: int, request: Request):
     return templates.TemplateResponse(
         "stage.html", {"request": request, "output": Markup(outputStageWithHtml(id))}
     )
+
+
+@app.post(RouterStageRestart)
+async def StageRestart(id: int, stageId: int):
+    return restart(id, stageId)
 
 
 if __name__ == "__main__":

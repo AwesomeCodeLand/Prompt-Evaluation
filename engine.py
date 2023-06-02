@@ -10,6 +10,7 @@ from stores.sqlite import (
     failedEvaluationById,
     update_stage_status,
     create_stage,
+    getStageById,
 )
 from exceptions.openaiException import (
     OpenAIException,
@@ -85,7 +86,7 @@ def do_evaluation(id: int, params: GptRequest):
         failedEvaluationById(id, {"evaluation": e.__str__()})
 
 
-def do_similarity(id: int, params: GptRequest):
+def do_similarity(id: int, params: GptRequest, restart=False):
     """
     This function is used to evaluate the performance of the prompt.
     It receives a prompt and returns a score.
@@ -93,6 +94,7 @@ def do_similarity(id: int, params: GptRequest):
         similarity_score: the similarity score between the response and the standard answer
         style_score: the style score between the response and the standard answer
     """
+    print(f"do_similarity type: {type(params)}")
     try:
         eval_params = params.eval
         # messages = [asdict(m) for m in eval_params.messages]
@@ -116,6 +118,7 @@ def do_similarity(id: int, params: GptRequest):
         update_stage_status(id, StageInit, StageStatusDone)
         return ss_score, st_score
     except Exception as e:
+        print(f"do_similarity error: {e}")
         update_stage_status(id, StageInit, StageStatusFailed)
         raise SimilarityScoreException(e.__str__())
 
@@ -128,15 +131,16 @@ def do_fluency(id: int, params: GptRequest):
         fluency_score: the fluency score of the prompt
     """
     try:
-        create_stage(
-            id,
-            StageFluency,
-            [
-                params.eval.messages[0].content,
-            ],
-            "",
-            StageStatusPadding,
-        )
+        if restart:
+            update_stage_status(id, StageFluency, StageStatusPadding)
+        else:
+            create_stage(
+                id,
+                StageFluency,
+                json.dumps(params, cls=GptRequestEncoder),
+                "",
+                StageStatusPadding,
+            )
 
         result = grammar_score(
             params.eval.messages[0].content,
@@ -157,13 +161,16 @@ def do_understand(id: int, params: GptRequest):
         understand_score: the understand score of the prompt
     """
     try:
-        create_stage(
-            id,
-            StageUnderstand,
-            [params.eval.messages[0].content, params.stand.answer],
-            "",
-            StageStatusPadding,
-        )
+        if restart:
+            update_stage_status(id, StageUnderstand, StageStatusPadding)
+        else:
+            create_stage(
+                id,
+                StageUnderstand,
+                json.dumps(params, cls=GptRequestEncoder),
+                "",
+                StageStatusPadding,
+            )
         result = understanding_score(
             params.eval.messages[0].content,
             params.stand.answer,
@@ -183,13 +190,16 @@ def do_divergence(id: int, params: GptRequest):
         divergence_score: the divergence score of the prompt
     """
     try:
-        create_stage(
-            id,
-            StageDivergence,
-            [params.eval.messages[0].content, params.stand.answer],
-            "",
-            StageStatusPadding,
-        )
+        if restart:
+            update_stage_status(id, StageDivergence, StageStatusPadding)
+        else:
+            create_stage(
+                id,
+                StageDivergence,
+                json.dumps(params, cls=GptRequestEncoder),
+                "",
+                StageStatusPadding,
+            )
         result = divergence_score(
             params.eval.messages[0].content,
             params.stand.answer,
@@ -199,3 +209,59 @@ def do_divergence(id: int, params: GptRequest):
     except Exception as e:
         update_stage_status(id, StageDivergence, StageStatusFailed)
         raise DivergenceScoreException(e.__str__())
+
+
+def restart(eid: int, stageId: int):
+    status = getStageById(eid, stageId)
+    if status is None:
+        raise Exception("stage not found")
+
+    switcher = {
+        StageInit: restart_init,
+        StageSimilarity: restart_similarity,
+        StageStyle: restart_style,
+        StageFluency: restart_fluency,
+        StageUnderstand: restart_understand,
+        StageDivergence: restart_divergence,
+        # add more cases here
+    }
+
+    # Todo
+    restart_stage = switcher.get(status["stage"], restart_invalid)
+    input_str = status["input"].decode("utf-8")
+    print(f"restart input_str: {input_str}")
+    restart_stage(
+        eid,
+        json.loads(input_str),
+    )
+
+
+def restart_init(id: int, params: GptRequest):
+    restart_similarity(id, params)
+
+
+def restart_similarity(id: int, params: GptRequest):
+    do_similarity(id, params, restart=True)
+    restart_fluency(id, params)
+
+
+def restart_style():
+    pass
+
+
+def restart_fluency(id: int, params: GptRequest):
+    do_fluency(id, params, restart=True)
+    restart_understand(id, params)
+
+
+def restart_understand(id: int, params: GptRequest):
+    do_understand(id, params, restart=True)
+    restart_divergence(id, params)
+
+
+def restart_divergence(id: int, params: GptRequest):
+    do_divergence(id, params, restart=True)
+
+
+def restart_invalid():
+    raise Exception("invalid stage")
