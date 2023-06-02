@@ -44,6 +44,7 @@ def outputStageWithHtml(id: int):
     stage = get_stage(id)
     htmlTable = f"""
     <div class="row">
+    <div id="liveAlertPlaceholder"></div>
     """
 
     # check if the stage is empty
@@ -66,12 +67,12 @@ def outputStageWithHtml(id: int):
         <div class="col-1" style="word-break: break-all;">{stage[0]}</div>
         <div class="col-1" style="word-break: break-all;">{stage[1]}</div>
         <div class="col-1" style="word-break: break-all;">{stage[2]}</div>
-        <div class="col-5" style="word-break: break-all;">{stage[3]
+        <div class="col-3" style="word-break: break-all;">{stage[3]
         .encode("utf-8")
         .decode("unicode_escape")
         .encode("utf-8")
         .decode("unicode_escape")}</div>
-        <div class="col-1" style="word-break: break-all;">{stage[4]
+        <div class="col-3" style="word-break: break-all;">{stage[4]
         .encode("utf-8")
         .decode("unicode_escape")
         .encode("utf-8")
@@ -83,7 +84,7 @@ def outputStageWithHtml(id: int):
         <div class="col-2">
             <form method="POST" action="/v1/stage_restart/{id}/{stage[0]}">
                 <input type="hidden" name="stage_id" value="{stage[0]}">
-                <button type="submit" class='btn btn-primary'>Restart</button>
+                <type="button" class="btn btn-primary" id="liveAlertBtn" onClick="alert('Stage Re-Start!')">Restart</button>
             </form>
         </div>
         """

@@ -219,7 +219,7 @@ def update_stage(id, eid, stage, input, output, status):
     conn.commit()
 
 
-def update_stage_status(eid, stage, status):
+def update_stage_status(eid, stage, status,output=""):
     """
     Update a stage record in the database by ID.
     """
@@ -228,10 +228,10 @@ def update_stage_status(eid, stage, status):
     cursor.execute(
         """
         UPDATE stage
-        SET status = ?
+        SET status = ?, output=?
         WHERE eid = ? and stage = ?
     """,
-        (status, eid, stage),
+        (status,output, eid, stage),
     )
     conn.commit()
 

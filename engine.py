@@ -1,5 +1,5 @@
 import threading
-from models.http import GptRequest, Eval, Message, GptRequestEncoder
+from models.http import GptRequest, Eval, Message, GptRequestEncoder, Stand
 from log import output_log, DebugLevel, ErrLevel
 from similarity import similarity_score, style_score
 from wrap import chatWithOpenAI
@@ -94,7 +94,8 @@ def do_similarity(id: int, params: GptRequest, restart=False):
         similarity_score: the similarity score between the response and the standard answer
         style_score: the style score between the response and the standard answer
     """
-    print(f"do_similarity type: {type(params)}")
+    # print(f"do_similarity type: {type(params)}")
+    # print(f"{params}")
     try:
         eval_params = params.eval
         # messages = [asdict(m) for m in eval_params.messages]
@@ -119,7 +120,7 @@ def do_similarity(id: int, params: GptRequest, restart=False):
         return ss_score, st_score
     except Exception as e:
         print(f"do_similarity error: {e}")
-        update_stage_status(id, StageInit, StageStatusFailed)
+        update_stage_status(id, StageInit, StageStatusFailed, e.__str__())
         raise SimilarityScoreException(e.__str__())
 
 
@@ -228,12 +229,41 @@ def restart(eid: int, stageId: int):
 
     # Todo
     restart_stage = switcher.get(status["stage"], restart_invalid)
-    input_str = status["input"].decode("utf-8")
-    print(f"restart input_str: {input_str}")
-    restart_stage(
-        eid,
-        json.loads(input_str),
-    )
+    # print(f"""restart input_str: {status["input"].encode("utf-8")
+    #     .decode("unicode_escape")
+    #     .encode("utf-8")
+    #     .decode("unicode_escape")}""")
+    try:
+        input_str = json.loads(json.loads(status["input"]))
+        # print(f"{input_str['eval']}")
+        grt =  GptRequest(eval=Eval(
+                model=input_str["eval"]["model"],
+                messages=[
+                    Message(
+                        content=input_str["eval"]["messages"][0]["content"],
+                        role=input_str["eval"]["messages"][0]["role"])
+                    ],
+                temperature=input_str["eval"]["temperature"],
+                max_tokens=input_str["eval"]["max_tokens"],
+                frequency_penalty=input_str["eval"]["frequency_penalty"],
+                presence_penalty=input_str["eval"]["presence_penalty"],
+                n=input_str["eval"]["n"],
+                stop=input_str["eval"]["stop"],
+                top_n=input_str["eval"]["top_n"],
+            ),
+            stand=Stand(
+            answer=input_str["stand"]["answer"],
+            )
+            )
+        if not isinstance(grt, GptRequest):
+            raise Exception(f"invalid params type, need GptRequest, but got {type(grt)})")    
+        
+        thread = threading.Thread(target=restart_stage, args=(eid,grt))
+        thread.start()
+        return {},200
+    
+    except Exception as e:
+        print(f"restart error: {e}")
 
 
 def restart_init(id: int, params: GptRequest):
