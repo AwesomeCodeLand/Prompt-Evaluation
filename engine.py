@@ -9,6 +9,7 @@ from stores.sqlite import (
     finishEvaluationById,
     failedEvaluationById,
     update_stage_status,
+    paddingEvaluationById,
     create_stage,
     getStageById,
 )
@@ -260,6 +261,8 @@ def restart(eid: int, stageId: int):
         
         print(f"{eid} {stageId} restart with {StageStatusPadding}")
         update_stage_status(eid, stageId, StageStatusPadding)
+        paddingEvaluationById(eid)
+        
         thread = threading.Thread(target=restart_stage, args=(eid,grt))
         thread.start()
         

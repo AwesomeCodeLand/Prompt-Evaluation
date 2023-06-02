@@ -131,7 +131,17 @@ def deleteEvaluationById(id):
     conn.commit()
     conn.close()
 
-
+# update an evaluation record by ID
+def paddingEvaluationById(id):
+    conn = sqlite3.connect("db/prompt.db")
+    c = conn.cursor()
+    c.execute(
+        "UPDATE evaluation SET status = ? WHERE id = ?",
+        (padding, id),
+    )
+    conn.commit()
+    conn.close()
+    
 # retrieve all evaluation records and order by timestamp in descending order
 def getAllEvaluations():
     conn = sqlite3.connect("db/prompt.db")
