@@ -258,9 +258,11 @@ def restart(eid: int, stageId: int):
         if not isinstance(grt, GptRequest):
             raise Exception(f"invalid params type, need GptRequest, but got {type(grt)})")    
         
+        print(f"{eid} {stageId} restart with {StageStatusPadding}")
+        update_stage_status(eid, stageId, StageStatusPadding)
         thread = threading.Thread(target=restart_stage, args=(eid,grt))
         thread.start()
-        return {},200
+        
     
     except Exception as e:
         print(f"restart error: {e}")

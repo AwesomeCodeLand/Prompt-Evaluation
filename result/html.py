@@ -84,7 +84,7 @@ def outputStageWithHtml(id: int):
         <div class="col-2">
             <form method="POST" action="/v1/stage_restart/{id}/{stage[0]}">
                 <input type="hidden" name="stage_id" value="{stage[0]}">
-                <type="button" class="btn btn-primary" id="liveAlertBtn" onClick="alert('Stage Re-Start!')">Restart</button>
+                <button type="submit" class='btn btn-primary'>Restart</button>
             </form>
         </div>
         """
