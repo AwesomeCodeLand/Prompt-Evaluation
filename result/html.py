@@ -1,4 +1,6 @@
-from stores.sqlite import getAllEvaluations
+from stores.sqlite import getAllEvaluations, get_stage
+from const_var import StageStatusFailed,StageStatusPadding,StageStatusDone, StandPadding, StandDone, StandFailed
+
 
 def outputWithHtml():
     """
@@ -8,47 +10,104 @@ def outputWithHtml():
     allRecords = getAllEvaluations()
     # Create the HTML table
     htmlTable = """
-    <table class="table table-bordered table-hover align-middle">
-        <thead>
-            <tr>
-                <th  class="w-10">#</th>
-                <th  class="w-10">Name</th>
-                <th  class="w-30">Response</th>
-                <th  class="w-10">Operations</th>
-                <th  class="w-40">Prompt</th>
-            </tr>
-        </thead>
-        <tbody>
+    <div class="row">
     """
     for record in allRecords:
-        print(record['id'], record['status'])
-        if record['status'] == 'finish':
+        # print(record["id"], record["status"])
+        if record["status"] == "finish":
             htmlTable += f"""
-            <tr>
-                <th class="w-10">{record['id']}</th>
-                <td class="w-10">{record['name']}</td>
-                <td class="w-30" style="overflow: hidden; text-overflow:ellipsis; white-space: nowrap;">{record['evaluation']}</td>
-                <td class="w-10">
-                    <button class='btn btn-primary'>get result</button>
-                </td>
-                <td class="w-40" style="overflow: hidden; text-overflow:ellipsis; white-space: nowrap;">{record['prompt']}</td>
-                
-            </tr>
+            <div class="col-1">{record['id']}</div>
+            <div class="col-1" >{record['name']}</div>
+            <div class="col-5" style="word-break: break-all;">{record['evaluation']}</div>
+            <div class="col-1"><button class='btn btn-primary' onclick="window.location.href='/v1/query_stage/{record['id']}'">{record['status']}</button></div>
+            <div class="col-3" style="word-break: break-all;">{record['prompt']}</div>
             """
         else:
             htmlTable += f"""
-            <tr>
-                <th class="w-10">{record['id']}</th>
-                <td class="w-10">{record['name']}</td>
-                <td class="w-30" style="overflow: hidden; text-overflow:ellipsis; white-space: nowrap;">{record['evaluation']}</td>
-                <td class="w-10">{record['status']}</td>
-                <td class="w-40" style="overflow: hidden; text-overflow:ellipsis; white-space: nowrap;">{record['prompt']}</td>
-                
-            </tr>
+            <div class="col-1">{record['id']}</div>
+            <div class="col-2">{record['name']}</div>
+            <div class="col-1"><button class='btn btn-primary' onclick="window.location.href='/v1/query_stage/{record['id']}'">{record['status']}</button></div>
+            <div class="col-4" style="word-break: break-all;">{record['evaluation']}</div>
+            <div class="col-4" style="word-break: break-all;">{record['prompt']}</div>
             """
     htmlTable += """
-        </tbody>
-    </table>
+    </div>
     """
-    
+
     return htmlTable
+
+
+def outputStageWithHtml(id: int):
+    """
+    Read all records from prompt.db stage table and output to html format.
+    """
+    stage = get_stage(id)
+    htmlTable = f"""
+    <div class="row">
+    <div id="liveAlertPlaceholder"></div>
+    """
+
+    # check if the stage is empty
+    if stage is None:
+        htmlTable += "No stage record found."
+        htmlTable += """</div>"""
+        return htmlTable
+    htmlTable += """
+        <div class="col-1" style="word-break: break-all;">ID</div>
+        <div class="col-1" style="word-break: break-all;">EID</div>
+        <div class="col-1" style="word-break: break-all;">STAGE</div>
+        <div class="col-5" style="word-break: break-all;">INPUT</div>
+        <div class="col-1" style="word-break: break-all;">OUTPUT</div>
+        <div class="col-2" style="word-break: break-all;">STATUS</div>
+        <div class="col-1" style="word-break: break-all;">TIMESTAMP</div>
+    """
+
+    htmlTable += f"""
+        <hr/>
+        <div class="col-1" style="word-break: break-all;">{stage[0]}</div>
+        <div class="col-1" style="word-break: break-all;">{stage[1]}</div>
+        <div class="col-1" style="word-break: break-all;">{stage[2]}</div>
+        <div class="col-3" style="word-break: break-all;">{stage[3]
+        .encode("utf-8")
+        .decode("unicode_escape")
+        .encode("utf-8")
+        .decode("unicode_escape")}</div>
+        <div class="col-3" style="word-break: break-all;">{stage[4]
+        .encode("utf-8")
+        .decode("unicode_escape")
+        .encode("utf-8")
+        .decode("unicode_escape")}</div>
+        """
+    if stage[5] == StageStatusFailed:
+        htmlTable += f"""
+        <div class="col-2">
+            <form method="POST" action="/v1/stage_restart/{id}/{stage[0]}">
+                <input type="hidden" name="stage_id" value="{stage[0]}">
+                <button type="submit" class='btn btn-primary'>Restart</button>
+            </form>
+        </div>
+        """
+    else:
+        htmlTable += f"""
+        <div class="col-2" style="word-break: break-all;">{status(stage[5])}</div>
+        """
+
+    htmlTable += f"""
+        <div class="col-1" style="word-break: break-all;">{stage[6]}</div>
+        <hr/>
+        """
+    htmlTable += """</div>"""
+
+    return htmlTable
+
+def status(origin:str) -> str:
+    """
+    Get the stand name for origin status.
+    """
+
+    if origin == StageStatusPadding:
+        return StandPadding
+    if origin == StageStatusFailed:
+        return StandFailed
+    if origin == StageStatusDone:
+        return StandDone

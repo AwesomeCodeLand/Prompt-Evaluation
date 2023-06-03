@@ -12,14 +12,18 @@ class FluencyScore:
         return "content: {}\ngrammar: {}\nerror: {}\nlogic: {}".format(
             self.content, self.grammar, self.error, self.logic)
     
-    def toJson(self):
+    def toJSON(self):
         # output myself as a json
-        return json.dumps({
-            "content": self.content,
-            "grammar": self.grammar,
-            "error": self.error,
-            "logic": self.logic
-        })
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+
+    # def toJson(self):
+    #     # output myself as a json
+    #     return json.dumps({
+    #         "content": self.content,
+    #         "grammar": self.grammar,
+    #         "error": self.error,
+    #         "logic": self.logic
+    #     })
     
     def score(self):
         # output myself as a dict
@@ -29,3 +33,9 @@ class FluencyScore:
             "error": self.error,
             "logic": self.logic
         }
+
+class FluencyScoreEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, FluencyScore):
+            return obj.__dict__
+        return json.JSONEncoder.default(self, obj)
