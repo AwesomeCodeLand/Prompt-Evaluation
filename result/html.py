@@ -1,6 +1,6 @@
-from stores.sqlite import getAllEvaluations, get_stage
+from stores.sqlite import getAllEvaluations, get_stage,getEvaluationById
 from const_var import StageStatusFailed,StageStatusPadding,StageStatusDone, StandPadding, StandDone, StandFailed
-
+import json
 
 def outputWithHtml():
     """
@@ -19,7 +19,7 @@ def outputWithHtml():
             <div class="col-1">{record['id']}</div>
             <div class="col-1" >{record['name']}</div>
             <div class="col-5" style="word-break: break-all;">{record['evaluation']}</div>
-            <div class="col-1"><button class='btn btn-primary' onclick="window.location.href='/v1/query_stage/{record['id']}'">{record['status']}</button></div>
+            <div class="col-1"><button class='btn btn-primary' onclick="window.location.href='/v1/spider/{record['id']}'">GRAPH</button></div>
             <div class="col-3" style="word-break: break-all;">{record['prompt']}</div>
             """
         else:
@@ -111,3 +111,40 @@ def status(origin:str) -> str:
         return StandFailed
     if origin == StageStatusDone:
         return StandDone
+
+def spiderWithHtml(id:int)->str:
+    eva = getEvaluationById(id)
+    if eva is None:
+        return """
+        let data = [
+            {
+                "sm":0.0,
+                "st":0.0,
+                "fl-c":0.0,
+                "fl-g":0.0,
+                "fl-e":0.0,
+                "fl-l":0.0,
+                "di":0.0,
+                "un":0.0      
+            }
+        ];
+        """
+    result = json.loads(eva['evaluation'])
+
+    
+    fs = json.loads(result['fluency_score'])
+    
+    return f"""
+        let data = [
+            {{
+                "sm":{result['similarity_score']},
+                "st":{result['style_score']},
+                "fl-c":{fs['content']},
+                "fl-g":{fs['grammar']},
+                "fl-e":{fs['error']},
+                "fl-l":{fs['logic']},
+                "di":{result['divergence_score']},
+                "un":{result['understand_score']}   
+            }}
+        ];
+        """

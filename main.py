@@ -21,6 +21,7 @@ from const_var import (
     RouterQueryStatus,
     RouterQueryStage,
     RouterStageRestart,
+    RouterSpider,
 )
 from similarity import similarity_score, style_score
 from wrap import chatWithOpenAI
@@ -28,7 +29,7 @@ from fluency import grammar_score, understanding_score
 from divergence import divergence_score
 from stores.sqlite import sqliteInit, createPaddingEvaluation, getAllEvaluations
 from engine import do_evaluation, restart
-from result.html import outputWithHtml, outputStageWithHtml
+from result.html import outputWithHtml, outputStageWithHtml,spiderWithHtml
 from markupsafe import Markup
 
 sqliteInit()
@@ -226,6 +227,11 @@ async def QueryStage(id: int, request: Request):
 async def StageRestart(id: int, stageId: int):
     return restart(id, stageId)
 
+@app.get(RouterSpider, response_class=HTMLResponse)
+async def Spider(id: int, request: Request):
+    return templates.TemplateResponse(
+        "spiderChat.html", {"request": request, "output": Markup(spiderWithHtml(id))}
+    )
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=15000)

@@ -7,6 +7,7 @@ RouterSimilarity = "/v1/similarity"
 RouterQueryStatus = "/v1/query_status"
 RouterQueryStage = "/v1/query_stage/{id}"
 RouterStageRestart = "/v1/stage_restart/{id}/{stageId}"
+RouterSpider = "/v1/spider/{id}"
 
 BadRequestStatusCode = 400
 
