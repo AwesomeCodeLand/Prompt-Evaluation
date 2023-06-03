@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Process Line Chart</title>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+  </head>
+  <body>
+    <svg width="600" height="100"></svg>
+    <svg width="600" height="100"></svg>
+
+    <script>
+      // Data for the first chart
+      var init = []
+      var data1 = [
+        { step: "Step 1", completed: true },
+        { step: "Step 2", completed: true },
+        { step: "Step 3", completed: false },
+        { step: "Step 4", completed: false },
+        { step: "Step 5", completed: false }
+      ];
+
+      // Data for the second chart
+      var data2 = [
+        { step: "Step A", completed: true },
+        { step: "Step B", completed: true },
+        { step: "Step C", completed: true },
+        { step: "Step D", completed: false },
+        { step: "Step E", completed: false }
+      ];
+
+      var dataSource = [ init,data2,data1]
+
+      // q: how to interation the dataSource
+      // a: use forEach
+
+      dataSource.forEach(( data,idx) => {
+        // Create the first SVG element
+        console.log(idx, data)
+        const sn = `svg:nth-of-type(${idx})`;
+        console.log(sn);
+        var svg = d3.select(sn);
+        console.log(svg)
+        var xScale = d3.scaleBand()
+        .domain(data.map(function(d) { return d.step; }))
+        .range([0, 600])
+        .padding(0.1);
+
+      // Define the axis for the first chart
+      var xAxis = d3.axisBottom(xScale);
+
+      // Add the axis to the first SVG element
+      svg.append("g")
+        .attr("transform", "translate(0, 80)")
+        .call(xAxis);
+
+      // Add the steps to the first SVG element
+      svg.selectAll(".step")
+        .data(data)
+        .enter()
+        .append("rect")
+        .attr("class", "step")
+        .attr("x", function(d) { return xScale(d.step); })
+        .attr("y", 20)
+        .attr("width", xScale.bandwidth())
+        .attr("height", 30)
+        .style("fill", function(d) { return d.completed ? "green" : "red"; });    
+      });
+
+      // Create the first SVG element
+      // var svg1 = d3.select("svg:nth-of-type(1)");
+
+      // // Define the scales for the first chart
+      // var xScale1 = d3.scaleBand()
+      //   .domain(data1.map(function(d) { return d.step; }))
+      //   .range([0, 600])
+      //   .padding(0.1);
+
+      // // Define the axis for the first chart
+      // var xAxis1 = d3.axisBottom(xScale1);
+
+      // // Add the axis to the first SVG element
+      // svg1.append("g")
+      //   .attr("transform", "translate(0, 80)")
+      //   .call(xAxis1);
+
+      // // Add the steps to the first SVG element
+      // svg1.selectAll(".step")
+      //   .data(data1)
+      //   .enter()
+      //   .append("rect")
+      //   .attr("class", "step")
+      //   .attr("x", function(d) { return xScale1(d.step); })
+      //   .attr("y", 20)
+      //   .attr("width", xScale1.bandwidth())
+      //   .attr("height", 30)
+      //   .style("fill", function(d) { return d.completed ? "green" : "red"; });
+
+      // // Create the second SVG element
+      // var svg2 = d3.select("svg:nth-of-type(2)");
+
+      // // Define the scales for the second chart
+      // var xScale2 = d3.scaleBand()
+      //   .domain(data2.map(function(d) { return d.step; }))
+      //   .range([0, 600])
+      //   .padding(0.1);
+
+      // // Define the axis for the second chart
+      // var xAxis2 = d3.axisBottom(xScale2);
+
+      // // Add the axis to the second SVG element
+      // svg2.append("g")
+      //   .attr("transform", "translate(0, 80)")
+      //   .call(xAxis2);
+
+      // // Add the steps to the second SVG element
+      // svg2.selectAll(".step")
+      //   .data(data2)
+      //   .enter()
+      //   .append("rect")
+      //   .attr("class", "step")
+      //   .attr("x", function(d) { return xScale2(d.step); })
+      //   .attr("y", 20)
+      //   .attr("width", xScale2.bandwidth())
+      //   .attr("height", 30)
+      //   .style("fill", function(d) { return d.completed ? "green" : "red"; });
+    </script>
+  </body>
+</html>
