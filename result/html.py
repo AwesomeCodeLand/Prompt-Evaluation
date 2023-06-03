@@ -131,17 +131,20 @@ def spiderWithHtml(id:int)->str:
         """
     result = json.loads(eva['evaluation'])
 
+    
+    fs = json.loads(result['fluency_score'])
+    
     return f"""
         let data = [
-            {
-                "sm":{result.similarity_score},
-                "st":{result.style_score},
-                "fl-c":{result.fluency_score.content},
-                "fl-g":{result.fluency_score.grammar},
-                "fl-e":{result.fluency_score.error},
-                "fl-l":{result.fluency_score.logic},
-                "di":{result.divergence_score},
-                "un":{result.understand_score}   
-            }
+            {{
+                "sm":{result['similarity_score']},
+                "st":{result['style_score']},
+                "fl-c":{fs['content']},
+                "fl-g":{fs['grammar']},
+                "fl-e":{fs['error']},
+                "fl-l":{fs['logic']},
+                "di":{result['divergence_score']},
+                "un":{result['understand_score']}   
+            }}
         ];
-    """
+        """
