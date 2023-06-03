@@ -1,5 +1,6 @@
 import threading
 from models.http import GptRequest, Eval, Message, GptRequestEncoder, Stand
+from models.fluency import FluencyScoreEncoder
 from log import output_log, DebugLevel, ErrLevel
 from similarity import similarity_score, style_score
 from wrap import chatWithOpenAI
@@ -61,7 +62,7 @@ def do_evaluation(id: int, params: GptRequest):
         evaluation = {
             "similarity_score": ss_score,
             "style_score": style_score,
-            "fluency_score": json.dumps(fluency),
+            "fluency_score": json.dumps(fluency, cls=FluencyScoreEncoder),
             "divergence_score": divergence,
             "understand_score": understand,
         }

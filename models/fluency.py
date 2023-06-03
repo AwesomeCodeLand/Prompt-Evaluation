@@ -33,3 +33,9 @@ class FluencyScore:
             "error": self.error,
             "logic": self.logic
         }
+
+class FluencyScoreEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, FluencyScore):
+            return obj.__dict__
+        return json.JSONEncoder.default(self, obj)
