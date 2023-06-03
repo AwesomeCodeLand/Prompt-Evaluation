@@ -1,4 +1,5 @@
 import sqlite3
+import datetime
 
 padding = "padding"
 finish = "finish"
@@ -94,8 +95,8 @@ def updateEvaluationById(id, values):
     conn = sqlite3.connect("db/prompt.db")
     c = conn.cursor()
     c.execute(
-        "UPDATE evaluation SET name = ?, prompt = ?, evaluation = ?, status = ? WHERE id = ?",
-        (values["name"], values["prompt"], values["evaluation"], values["status"], id),
+        "UPDATE evaluation SET name = ?, prompt = ?, evaluation = ?, status = ?, timestamp=? WHERE id = ?",
+        (values["name"], values["prompt"], values["evaluation"], values["status"], getNow(), id),
     )
     conn.commit()
     conn.close()
@@ -136,7 +137,7 @@ def paddingEvaluationById(id):
     conn = sqlite3.connect("db/prompt.db")
     c = conn.cursor()
     c.execute(
-        "UPDATE evaluation SET status = ? WHERE id = ?",
+        "UPDATE evaluation SET status = ? , evaluation='' WHERE id = ?",
         (padding, id),
     )
     conn.commit()
@@ -221,15 +222,15 @@ def update_stage(id, eid, stage, input, output, status):
     cursor.execute(
         """
         UPDATE stage
-        SET eid = ?, stage = ?, input = ?, output = ?, status = ?
+        SET eid = ?, stage = ?, input = ?, output = ?, status = ?, timestamp=?
         WHERE id = ?
     """,
-        (eid, stage, input, output, status, id),
+        (eid, stage, input, output, status, getNow(), id),
     )
     conn.commit()
 
 
-def update_stage_status(eid, stage, status,output=""):
+def update_stage_status(eid, stage, status, output=" "):
     """
     Update a stage record in the database by ID.
     """
@@ -238,10 +239,10 @@ def update_stage_status(eid, stage, status,output=""):
     cursor.execute(
         """
         UPDATE stage
-        SET status = ?, output=?
+        SET status = ?, output=?, timestamp=?
         WHERE eid = ? and stage = ?
     """,
-        (status,output, eid, stage),
+        (status,output, getNow(), eid, stage),
     )
     conn.commit()
 
@@ -254,3 +255,11 @@ def delete_stage(id):
     cursor = conn.cursor()
     cursor.execute("DELETE FROM stage WHERE id = ?", (id,))
     conn.commit()
+
+def getNow():
+    """
+    Get current time
+    """
+
+    now = datetime.datetime.now()
+    return now.strftime("%Y-%m-%d %H:%M:%S")

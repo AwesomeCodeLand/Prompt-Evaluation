@@ -120,7 +120,7 @@ def do_similarity(id: int, params: GptRequest, restart=False):
                 "",
                 StageStatusPadding,
             )
-            
+
         ss_score = similarity_score(response, params.stand.answer)
         update_stage_status(id, StageSimilarity, StageStatusDone)
 
@@ -135,7 +135,7 @@ def do_similarity(id: int, params: GptRequest, restart=False):
         raise SimilarityScoreException(e.__str__())
 
 
-def do_fluency(id: int, params: GptRequest):
+def do_fluency(id: int, params: GptRequest, restart=False):
     """
     This function is used to evaluate the performance of the prompt.
     It receives a prompt and returns a score.
@@ -165,7 +165,7 @@ def do_fluency(id: int, params: GptRequest):
         raise FluencyScoreException(e.__str__())
 
 
-def do_understand(id: int, params: GptRequest):
+def do_understand(id: int, params: GptRequest, restart=False):
     """
     This function is used to evaluate the performance of the prompt.
     It receives a prompt and returns a score.
@@ -194,7 +194,7 @@ def do_understand(id: int, params: GptRequest):
         raise UnderstandScoreException(e.__str__())
 
 
-def do_divergence(id: int, params: GptRequest):
+def do_divergence(id: int, params: GptRequest, restart=False):
     """
     This function is used to evaluate the performance of the prompt.
     It receives a prompt and returns a score.
