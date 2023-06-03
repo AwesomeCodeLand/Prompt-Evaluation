@@ -49,19 +49,24 @@ def do_evaluation(id: int, params: GptRequest):
         )
         output_log("create stage init", "do_evaluation", DebugLevel)
         ss_score, style_score = do_similarity(id, params)
+        output_log("create stage similarity", "do_evaluation", DebugLevel)
         fluency = do_fluency(id, params)
+        output_log("create stage fluency", "do_evaluation", DebugLevel)
         divergence = do_divergence(id, params)
+        output_log("create stage divergence", "do_evaluation", DebugLevel)
         understand = do_understand(id, params)
+        output_log("create stage understand", "do_evaluation", DebugLevel)
 
         # create dictionary object
         evaluation = {
             "similarity_score": ss_score,
             "style_score": style_score,
-            "fluency_score": fluency,
+            "fluency_score": json.dumps(fluency),
             "divergence_score": divergence,
             "understand_score": understand,
         }
 
+        output_log(evaluation, "evaluation", DebugLevel)
         # convert dictionary to JSON object
         evaluation_json = json.dumps(evaluation)
 

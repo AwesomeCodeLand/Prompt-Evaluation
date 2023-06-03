@@ -22,3 +22,7 @@ StageDivergence = "do_divergence"
 StageStatusPadding = "status_padding"
 StageStatusDone = "status_done"
 StageStatusFailed = "status_failed"
+
+StandPadding = "PADDING"
+StandDone = "DONE"
+StandFailed = "FAILED"

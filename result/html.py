@@ -1,5 +1,5 @@
 from stores.sqlite import getAllEvaluations, get_stage
-from const_var import StageStatusFailed
+from const_var import StageStatusFailed,StageStatusPadding,StageStatusDone, StandPadding, StandDone, StandFailed
 
 
 def outputWithHtml():
@@ -80,7 +80,6 @@ def outputStageWithHtml(id: int):
         """
     if stage[5] == StageStatusFailed:
         htmlTable += f"""
-        <!-- <div class="col-2" style="word-break: break-all;">{stage[5]}</div> -->
         <div class="col-2">
             <form method="POST" action="/v1/stage_restart/{id}/{stage[0]}">
                 <input type="hidden" name="stage_id" value="{stage[0]}">
@@ -90,7 +89,7 @@ def outputStageWithHtml(id: int):
         """
     else:
         htmlTable += f"""
-        <div class="col-2" style="word-break: break-all;">{stage[5]}</div>
+        <div class="col-2" style="word-break: break-all;">{status(stage[5])}</div>
         """
 
     htmlTable += f"""
@@ -100,3 +99,15 @@ def outputStageWithHtml(id: int):
     htmlTable += """</div>"""
 
     return htmlTable
+
+def status(origin:str) -> str:
+    """
+    Get the stand name for origin status.
+    """
+
+    if origin == StageStatusPadding:
+        return StandPadding
+    if origin == StageStatusFailed:
+        return StandFailed
+    if origin == StageStatusDone:
+        return StandDone
