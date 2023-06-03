@@ -110,7 +110,17 @@ def do_similarity(id: int, params: GptRequest, restart=False):
                 presence_penalty=eval_params.presence_penalty,
             )
         )
-
+        if restart:
+            update_stage_status(id, StageSimilarity, StageStatusPadding)
+        else:
+            create_stage(
+                id,
+                StageSimilarity,
+                json.dumps(params, cls=GptRequestEncoder),
+                "",
+                StageStatusPadding,
+            )
+            
         ss_score = similarity_score(response, params.stand.answer)
         update_stage_status(id, StageSimilarity, StageStatusDone)
 
@@ -262,7 +272,7 @@ def restart(eid: int, stageId: int):
         print(f"{eid} {stageId} restart with {StageStatusPadding}")
         update_stage_status(eid, stageId, StageStatusPadding)
         paddingEvaluationById(eid)
-        
+
         thread = threading.Thread(target=restart_stage, args=(eid,grt))
         thread.start()
         

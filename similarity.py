@@ -14,7 +14,7 @@ from const_var import StageSimilarity, StageStyle, StageStatusPadding
 import numpy as np
 
 
-def similarity_score(id, predice, stand):
+def similarity_score(predice, stand):
     """
     This function is used to calculate the similarity score.
         predice: the prediced content(openai return).
@@ -26,11 +26,12 @@ def similarity_score(id, predice, stand):
     # get the vector of predice and stand
     output_log(predice, "predice_similarity_score", "info")
     output_log(stand, "stand_similarity_score", "info")
-    create_stage(id, StageSimilarity, [predice, stand], "", StageStatusPadding)
+    # id == -1 identify the similarity score is not in the database
+    # create_stage(id, StageSimilarity, [predice, stand], "", StageStatusPadding)
     return IfIDFSimiliar(predice, stand)
 
 
-def style_score(id, predice, stand):
+def style_score(predice, stand):
     """
     This function is used to calculate the style score.
         predice: the prediced content(openai return).
@@ -55,7 +56,7 @@ def style_score(id, predice, stand):
     if stand != "":
         stand = StylePrompt_ZH.format(stand)
 
-    create_stage(id, StageStyle, [predice, stand], "", StageStatusPadding)
+    # create_stage(id, StageStyle, [predice, stand], "", StageStatusPadding)
 
     predice_sytle = style(predice)
     stand_sytle = style(stand)
