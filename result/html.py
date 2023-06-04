@@ -1,6 +1,17 @@
-from stores.sqlite import getAllEvaluations, get_stage,getEvaluationById
+from stores.sqlite import getAllEvaluations, get_stage,getEvaluationById,getStageById
 from const_var import StageStatusFailed,StageStatusPadding,StageStatusDone, StandPadding, StandDone, StandFailed
 import json
+from const_var import (
+    StageInit,
+    StageSimilarity,
+    StageStyle,
+    StageFluency,
+    StageUnderstand,
+    StageDivergence,
+    StageStatusPadding,
+    StageStatusDone,
+    StageStatusFailed,
+)
 
 def outputWithHtml():
     """
@@ -147,4 +158,122 @@ def spiderWithHtml(id:int)->str:
                 "un":{result['understand_score']}   
             }}
         ];
+        """
+
+# q: how to return multiple value
+# a: return a tuple
+def processLineWithHtml() :
+    """
+    Read all records from prompt.db evaluation table and output to html format.
+    """
+
+    allRecords = getAllEvaluations()
+    # Create the HTML table
+
+    svg = ""
+    dataSource = ""
+    dataList = ""
+    for idx, record in enumerate(allRecords):
+        svg += f"""
+        <div style="padding-left: 100px;"><button class='btn btn-primary' onclick="window.location.href='/v1/query_stage/{record['id']}'">{record['name']}</button> {record['timestamp']}</div>
+        <svg width="600" height="120" style="padding-top: 20px;padding-left: 100px;"></svg>
+        """
+        dataSource += f"""
+        var data{idx}=[
+            {getStageStatus(record)}
+        ]
+        """
+        dataList += f"""data{idx},"""
+
+    # remove last comma
+    dataList = dataList[:-1]
+    dataSource += f"""var dataSource = [init, {dataList}]"""
+    
+    return svg, dataSource
+
+def getStageStatus(record):
+    # print(record)
+    stage = get_stage(record['id'])
+    # result = []
+    # print(stage[5])
+    # if stage[5] == StageStatusFailed:
+        
+    # elif stage[5] == StageStatusDone:
+    #     return f"""{stageStatus(stage[2])}"""
+    # else:
+    #     return f"""{{ step: "{stage[2]}", completed: doing }}"""
+    
+    return f"""{stageStatus(stage=stage[2], status=stage[5])}"""
+
+
+def stageStatus(stage:str, status:str) -> str:
+    """
+    There has six status for stage:
+        StageInit: The stage is init.
+        StageSimilarity: The stage is similarity.
+        StageStyle: The stage is style.
+        StageFluency: The stage is fluency.
+        StageUnderstand: The stage is understand.
+        StageDivergence: The stage is divergence.
+    If status is StageInit, then return all six status, and these completed is false.
+    If status is StageSimilarity, then return:
+        StageInit, and completed: status_done. Residue five status with completed is false.
+    If status is StageStyle, then return:
+        StageInit, and completed: status_done. StageSimilarity, and completed: status_done. Residue four status with completed is false.
+    And so on.
+    """
+    
+    if stage == StageInit:
+        return f"""
+        {{ step: "{StageInit}", completed: '{status}' }},
+        {{ step: "{StageSimilarity}", completed: 'status_watting' }},
+        {{ step: "{StageStyle}", completed: 'status_watting' }},
+        {{ step: "{StageFluency}", completed: 'status_watting' }},
+        {{ step: "{StageUnderstand}", completed: 'status_watting' }},
+        {{ step: "{StageDivergence}", completed: 'status_watting' }},
+        """
+    if stage == StageSimilarity:
+        return f"""
+        {{ step: "{StageInit}", completed: 'status_done' }},
+        {{ step: "{StageSimilarity}", completed: '{status}' }},
+        {{ step: "{StageStyle}", completed: 'status_watting' }},
+        {{ step: "{StageFluency}", completed: 'status_watting' }},
+        {{ step: "{StageUnderstand}", completed: 'status_watting' }},
+        {{ step: "{StageDivergence}", completed: 'status_watting' }},
+        """
+    if stage == StageStyle:
+        return f"""
+        {{ step: "{StageInit}", completed: 'status_done' }},
+        {{ step: "{StageSimilarity}", completed: 'status_done' }},
+        {{ step: "{StageStyle}", completed: '{status}' }},
+        {{ step: "{StageFluency}", completed: 'status_watting' }},
+        {{ step: "{StageUnderstand}", completed: 'status_watting' }},
+        {{ step: "{StageDivergence}", completed: 'status_watting' }},
+        """
+    if stage == StageFluency:
+        return f"""
+        {{ step: "{StageInit}", completed: 'status_done' }},
+        {{ step: "{StageSimilarity}", completed: 'status_done' }},
+        {{ step: "{StageStyle}", completed: 'status_done' }},
+        {{ step: "{StageFluency}", completed: '{status}' }},
+        {{ step: "{StageUnderstand}", completed: 'status_watting' }},
+        {{ step: "{StageDivergence}", completed: 'status_watting' }},
+        """
+    if stage == StageUnderstand:
+        return f"""
+        {{ step: "{StageInit}", completed: 'status_done' }},
+        {{ step: "{StageSimilarity}", completed: 'status_done' }},
+        {{ step: "{StageStyle}", completed: 'status_done' }},
+        {{ step: "{StageFluency}", completed: 'status_done' }},
+        {{ step: "{StageUnderstand}", completed: '{status}' }},
+        {{ step: "{StageDivergence}", completed: 'status_watting' }},
+        """
+    if stage == StageDivergence:
+        return f"""
+        {{ step: "{StageInit}", completed: 'status_done' }},
+        {{ step: "{StageSimilarity}", completed: 'status_done' }},
+        {{  step: "{StageStyle}", completed: 'status_done' }},
+        {{ step: "{StageFluency}", completed: 'status_done' }},
+        {{ step: "{StageUnderstand}", completed: 'status_done' }},
+        {{ step: "{StageDivergence}", completed: '{status}' }},
         """
