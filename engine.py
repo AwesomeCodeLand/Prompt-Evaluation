@@ -72,7 +72,7 @@ def do_evaluation(id: int, params: GptRequest):
         evaluation_json = json.dumps(evaluation)
 
         finishEvaluationById(id, {"evaluation": evaluation_json})
-        update_stage_status(id, StageInit, StageStatusDone)
+        # update_stage_status(id, StageInit, StageStatusDone)
     except OpenAIException as e:
         output_log(e, "openai", ErrLevel)
         failedEvaluationById(id, {"evaluation": "openai " + e.__str__()})
