@@ -175,7 +175,7 @@ def processLineWithHtml() :
     dataList = ""
     for idx, record in enumerate(allRecords):
         svg += f"""
-        <div style="padding-left: 100px;">{record['name']}  {record['timestamp']}</div>
+        <div style="padding-left: 100px;"><button class='btn btn-primary' onclick="window.location.href='/v1/query_stage/{record['id']}'">{record['name']}</button> {record['timestamp']}</div>
         <svg width="600" height="120" style="padding-top: 20px;padding-left: 100px;"></svg>
         """
         dataSource += f"""
