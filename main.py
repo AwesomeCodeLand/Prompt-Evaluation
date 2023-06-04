@@ -29,7 +29,7 @@ from fluency import grammar_score, understanding_score
 from divergence import divergence_score
 from stores.sqlite import sqliteInit, createPaddingEvaluation, getAllEvaluations
 from engine import do_evaluation, restart
-from result.html import outputWithHtml, outputStageWithHtml,spiderWithHtml
+from result.html import outputWithHtml, outputStageWithHtml,spiderWithHtml,processLineWithHtml
 from markupsafe import Markup
 
 sqliteInit()
@@ -209,11 +209,21 @@ def Evaluation(name: str, params: GptRequest):
     }, 200
 
 
+# @app.get(RouterQueryStatus, response_class=HTMLResponse)
+# async def QueryStatus(request: Request):
+#     return templates.TemplateResponse(
+#         "status.html", {"request": request, "output": Markup(outputWithHtml())}
+#     )
+
 @app.get(RouterQueryStatus, response_class=HTMLResponse)
 async def QueryStatus(request: Request):
+    svg, dataSource = processLineWithHtml()
+    print(f"svg:{svg}")
+    print(f"dataSource:{dataSource}")
     return templates.TemplateResponse(
-        "status.html", {"request": request, "output": Markup(outputWithHtml())}
+        "processline.html", {"request": request,"dataSource":Markup(dataSource), "svg": Markup(svg)}
     )
+
 
 
 @app.get(RouterQueryStage, response_class=HTMLResponse)

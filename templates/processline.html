@@ -1,48 +1,53 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>Process Line Chart</title>
-    <script src="https://d3js.org/d3.v5.min.js"></script>
-  </head>
-  <body>
-    <svg width="600" height="100"></svg>
-    <svg width="600" height="100"></svg>
 
-    <script>
-      // Data for the first chart
-      var init = []
-      var data1 = [
-        { step: "Step 1", completed: true },
-        { step: "Step 2", completed: true },
-        { step: "Step 3", completed: false },
-        { step: "Step 4", completed: false },
-        { step: "Step 5", completed: false }
-      ];
+<head>
+  <meta charset="utf-8">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 
-      // Data for the second chart
-      var data2 = [
-        { step: "Step A", completed: true },
-        { step: "Step B", completed: true },
-        { step: "Step C", completed: true },
-        { step: "Step D", completed: false },
-        { step: "Step E", completed: false }
-      ];
+  <title>Evaluation Status</title>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+</head>
 
-      var dataSource = [ init,data2,data1]
+<body>
 
-      // q: how to interation the dataSource
-      // a: use forEach
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6 text-center">
+        <h1 class="mt-5">Evaluation Status</h1>
+      </div>
+    </div>
+    <!-- <script>
+      setTimeout(function () {
+        window.location.reload(1);
+      }, 5000);
+    </script> -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"
+      integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB"
+      crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"
+      integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13"
+      crossorigin="anonymous"></script>
 
-      dataSource.forEach(( data,idx) => {
-        // Create the first SVG element
-        console.log(idx, data)
-        const sn = `svg:nth-of-type(${idx})`;
-        console.log(sn);
-        var svg = d3.select(sn);
-        console.log(svg)
-        var xScale = d3.scaleBand()
-        .domain(data.map(function(d) { return d.step; }))
+  </div>
+  <div id="legend" style="padding-left: 100px;"></div>
+  {{ svg }}
+  <script>
+    // Data for the first chart
+    var init = []
+
+    {{ dataSource }}
+    
+    dataSource.forEach((data, idx) => {
+      // Create the first SVG element
+      console.log(idx, data)
+      const sn = `svg:nth-of-type(${idx})`;
+      console.log(sn);
+      var svg = d3.select(sn);
+      console.log(svg)
+      var xScale = d3.scaleBand()
+        .domain(data.map(function (d) { return d.step; }))
         .range([0, 600])
         .padding(0.1);
 
@@ -60,70 +65,93 @@
         .enter()
         .append("rect")
         .attr("class", "step")
-        .attr("x", function(d) { return xScale(d.step); })
-        .attr("y", 20)
+        .attr("x", function (d) { return xScale(d.step); })
         .attr("width", xScale.bandwidth())
         .attr("height", 30)
-        .style("fill", function(d) { return d.completed ? "green" : "red"; });    
-      });
+        .style("fill", function (d) {
+          console.log(d)
+          if (d.completed === 'status_done') {
+            return "green";
+          } else if (d.completed === 'status_failed') {
+            return "red";
+          } else if (d.completed === 'status_pending') {
+            return "gray";
+          } else if (d.completed === 'status_watting') {
+            return "orange";
+          } else {
+            return "black";
+          }
+        });
+    });
 
-      // Create the first SVG element
-      // var svg1 = d3.select("svg:nth-of-type(1)");
+    var legend = d3.select("#legend")
+      .append("svg")
+      .attr("width", 500)
+      .attr("height", 100);
+    // Add the legend rectangles to the legend SVG element
+    legend.append("rect")
+      .attr("x", 10)
+      .attr("y", 10)
+      .attr("width", 20)
+      .attr("height", 20)
+      .style("fill", "black");
 
-      // // Define the scales for the first chart
-      // var xScale1 = d3.scaleBand()
-      //   .domain(data1.map(function(d) { return d.step; }))
-      //   .range([0, 600])
-      //   .padding(0.1);
+    legend.append("rect")
+      .attr("x", 10)
+      .attr("y", 40)
+      .attr("width", 20)
+      .attr("height", 20)
+      .style("fill", "red");
 
-      // // Define the axis for the first chart
-      // var xAxis1 = d3.axisBottom(xScale1);
+    legend.append("rect")
+      .attr("x", 10)
+      .attr("y", 70)
+      .attr("width", 20)
+      .attr("height", 20)
+      .style("fill", "green");
 
-      // // Add the axis to the first SVG element
-      // svg1.append("g")
-      //   .attr("transform", "translate(0, 80)")
-      //   .call(xAxis1);
+    legend.append("rect")
+      .attr("x", 100)
+      .attr("y", 10)
+      .attr("width", 20)
+      .attr("height", 20)
+      .style("fill", "gray");
 
-      // // Add the steps to the first SVG element
-      // svg1.selectAll(".step")
-      //   .data(data1)
-      //   .enter()
-      //   .append("rect")
-      //   .attr("class", "step")
-      //   .attr("x", function(d) { return xScale1(d.step); })
-      //   .attr("y", 20)
-      //   .attr("width", xScale1.bandwidth())
-      //   .attr("height", 30)
-      //   .style("fill", function(d) { return d.completed ? "green" : "red"; });
+    legend.append("rect")
+      .attr("x", 100)
+      .attr("y", 40)
+      .attr("width", 20)
+      .attr("height", 20)
+      .style("fill", "orange");
 
-      // // Create the second SVG element
-      // var svg2 = d3.select("svg:nth-of-type(2)");
+    // Add the legend labels to the legend SVG element
+    legend.append("text")
+      .attr("x", 40)
+      .attr("y", 25)
+      .text("Unknown");
 
-      // // Define the scales for the second chart
-      // var xScale2 = d3.scaleBand()
-      //   .domain(data2.map(function(d) { return d.step; }))
-      //   .range([0, 600])
-      //   .padding(0.1);
+    legend.append("text")
+      .attr("x", 40)
+      .attr("y", 55)
+      .text("Failed");
 
-      // // Define the axis for the second chart
-      // var xAxis2 = d3.axisBottom(xScale2);
+    legend.append("text")
+      .attr("x", 40)
+      .attr("y", 85)
+      .text("Done");
 
-      // // Add the axis to the second SVG element
-      // svg2.append("g")
-      //   .attr("transform", "translate(0, 80)")
-      //   .call(xAxis2);
+    legend.append("text")
+      .attr("x", 130)
+      .attr("y", 25)
+      .text("Pending");
 
-      // // Add the steps to the second SVG element
-      // svg2.selectAll(".step")
-      //   .data(data2)
-      //   .enter()
-      //   .append("rect")
-      //   .attr("class", "step")
-      //   .attr("x", function(d) { return xScale2(d.step); })
-      //   .attr("y", 20)
-      //   .attr("width", xScale2.bandwidth())
-      //   .attr("height", 30)
-      //   .style("fill", function(d) { return d.completed ? "green" : "red"; });
-    </script>
-  </body>
+    legend.append("text")
+      .attr("x", 130)
+      .attr("y", 55)
+      .text("Wattting");
+
+  </script>
+
+</body>
+
 </html>
