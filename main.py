@@ -22,6 +22,7 @@ from const_var import (
     RouterQueryStage,
     RouterStageRestart,
     RouterSpider,
+    RouterHome,
 )
 from similarity import similarity_score, style_score
 from wrap import chatWithOpenAI
@@ -45,9 +46,9 @@ templates = Jinja2Templates(directory="templates")
 #     return "I am PE(Prompt Evaluation)!"
 
 
-@app.get("/")
-async def root():
-    return "I am PE(Prompt Evaluation)!"
+# @app.get("/")
+# async def root():
+#     return "I am PE(Prompt Evaluation)!"
 
 
 # @app.route(RouterSimilarity, methods=["POST"])
@@ -242,6 +243,13 @@ async def Spider(id: int, request: Request):
     return templates.TemplateResponse(
         "spiderChat.html", {"request": request, "output": Markup(spiderWithHtml(id))}
     )
+
+@app.get(RouterHome, response_class = HTMLResponse)
+async def Home(request: Request):
+    return templates.TemplateResponse(
+        "index.html", {"request": request}
+    )
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=15000)
