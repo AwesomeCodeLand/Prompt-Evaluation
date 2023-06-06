@@ -28,3 +28,10 @@ StageStatusFailed = "status_failed"
 StandPadding = "PADDING"
 StandDone = "DONE"
 StandFailed = "FAILED"
+
+ConfigPath = "config_path"
+
+LogInfo = "info"
+LogError = "error"
+LogWarning = "warning"
+LogDebug = "debug"
