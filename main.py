@@ -1,9 +1,10 @@
 import json
 import uvicorn
 import threading
-
+import os
 from log import output_log
-
+from models.configure import Conf
+from utils.configure import loadConfigure
 
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
@@ -23,6 +24,8 @@ from const_var import (
     RouterStageRestart,
     RouterSpider,
     RouterHome,
+    ConfigPath,
+    LogInfo,
 )
 from similarity import similarity_score, style_score
 from wrap import chatWithOpenAI
@@ -39,24 +42,11 @@ from result.html import (
 from markupsafe import Markup
 
 sqliteInit()
-# app = Flask(__name__)
+
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
-# app.logger.addHandler(logging.StreamHandler(sys.stdout))
-# app.logger.setLevel(logging.DEBUG)
 
 
-# @app.route("/")
-# async def root():
-#     return "I am PE(Prompt Evaluation)!"
-
-
-# @app.get("/")
-# async def root():
-#     return "I am PE(Prompt Evaluation)!"
-
-
-# @app.route(RouterSimilarity, methods=["POST"])
 @app.post(RouterSimilarity)
 def Similarity(params: GptRequest):
     """
@@ -74,29 +64,6 @@ def Similarity(params: GptRequest):
     Return a table of scores.
     """
 
-    # receive the prompt from request
-    # the body of request is a json file, which is openai chat api params
-    # like:
-    #     {
-    #     "eval": {
-    #         "model": "gpt-3.5-turbo",
-    #         "messages": [
-    #             {
-    #                 "role": "user",
-    #                 "content": ""
-    #             }
-    #         ],
-    #         "temperature": 0,
-    #         "max_tokens": 2300,
-    #         "frequency_penalty": 0,
-    #         "presence_penalty": 2
-    #     },
-    #     "stand": {
-    #         "answer": ""
-    #     }
-    # }
-
-    # params = request.get_json()
     output_log("new evaluation", RouterEvaluation, "info")
     # check whether the prompt is None
     if params is None:
@@ -161,13 +128,6 @@ def Understand(params: GptRequest):
     The score contains:
 
     """
-    # get the body from fastapi request
-
-    # params = request.get_json()
-
-    # understand_score = understanding_score(
-    #     params["eval"]["messages"][0]["content"], params["stand"]["answer"]
-    # )
     understand_score = understanding_score(
         params.eval.messages[0].content,
         params.stand.answer,
@@ -215,13 +175,6 @@ def Evaluation(name: str, params: GptRequest):
     }, 200
 
 
-# @app.get(RouterQueryStatus, response_class=HTMLResponse)
-# async def QueryStatus(request: Request):
-#     return templates.TemplateResponse(
-#         "status.html", {"request": request, "output": Markup(outputWithHtml())}
-#     )
-
-
 @app.get(RouterQueryStatus, response_class=HTMLResponse)
 async def QueryStatus(request: Request):
     svg, dataSource = processLineWithHtml()
@@ -258,6 +211,12 @@ async def Home(request: Request):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=15000)
-    # disable flask debug mode
-    # app.run(host="0.0.0.0", port=15000, debug=True, threaded=True)
+    conf = Conf.from_dict()
+    # if config_path in the environment variables, use it
+    config_path = os.environ.get(ConfigPath)
+    if config_path:
+        # do something with the config_path variable
+        conf = loadConfigure(config_path)
+
+    output_log(f"conf:{conf}")
+    uvicorn.run(app, host="0.0.0.0", port=conf.port)

@@ -5,6 +5,8 @@ import time
 import json
 import hashlib
 import socket
+from utils.configure import getConfigPath
+from utils.tools import changeLogLevel
 
 ErrLevel = "error"
 DebugLevel = "debug"
@@ -27,7 +29,7 @@ def md5_hash(string):
     :return: MD5值
     """
     m = hashlib.md5()
-    m.update(string.encode('utf-8'))
+    m.update(string.encode("utf-8"))
     return m.hexdigest()
 
 
@@ -39,7 +41,11 @@ def get_current_timestamp():
     return int(time.time())
 
 
-def output_log(x_msg, x_trace_id, level="info"):
+def error_out_log(x_msg):
+    output_log(x_msg, level=ErrLevel)
+
+
+def output_log(x_msg, x_trace_id="", level="info"):
     """
     生成日志
     :param x_msg: 日志内容
@@ -79,21 +85,16 @@ def output_log(x_msg, x_trace_id, level="info"):
         "x_span_id": x_span_id,
         "x_timestamp": get_current_timestamp(),
         "x_trace_id": x_trace_id,
-        "x_version": "python-gpt-1.0.0"
+        "x_version": "python-gpt-1.0.0",
     }
 
     # output log_data item type
-    # print(f'log_data item type: {type(log_data["x_msg"])}')
-    # print(f'log_data item type: {type(log_data["x_name"])}')
-    # print(f'log_data item type: {type(log_data["x_server_ip"])}')
-    # print(f'log_data item type: {type(log_data["x_span_id"])}')
-    # print(f'log_data item type: {type(log_data["x_timestamp"])}')
-    # print(f'log_data item type: {type(log_data["x_trace_id"])}')
-    # print(f'log_data item type: {type(log_data["x_version"])}')
-    # output log_data as json
-    # print(f'{log_data}')
+    log_json = json.dumps(log_data, ensure_ascii=False, separators=(",", ":"))
 
-    log_json = json.dumps(log_data, ensure_ascii=False, separators=(',', ':'))
+    # check the level whether equal to conf.LogLevel
+    c = getConfigPath()
 
-    # 输出日志
-    print(log_json)
+    # print(f"x_msg: {level} {c.logLevel}")
+    if changeLogLevel(level) >= changeLogLevel(c.logLevel):
+        # 输出日志
+        print(log_json)
