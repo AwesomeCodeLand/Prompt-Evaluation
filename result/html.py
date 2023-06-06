@@ -191,10 +191,10 @@ def processLineWithHtml():
         svg += f"""
         <div style="padding-left: 100px;">
             <div class="row">
-                <div class="col">
+                <div class="col-2">
                     <button class='btn btn-outline-primary btn-sm' onclick="window.location.href='/v1/query_stage/{record['id']}'">{record['name']}</button>
                 </div>
-                <div class="col">
+                <div class="col-2">
                     <p class="fw-lighter">{record['timestamp']}</p> 
                 </div>
                 
@@ -202,7 +202,7 @@ def processLineWithHtml():
 
         if record["status"] == "finish":
             svg += f"""
-                <div class="col">
+                <div class="col-2">
                     <div style="padding-left: 100px;"><button class='btn btn-outline-success btn-sm' onclick="window.location.href='/v1/spider/{record['id']}'">Result</button></div>
                 </div>
             """
