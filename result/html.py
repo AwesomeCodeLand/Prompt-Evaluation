@@ -1,5 +1,12 @@
-from stores.sqlite import getAllEvaluations, get_stage,getEvaluationById,getStageById
-from const_var import StageStatusFailed,StageStatusPadding,StageStatusDone, StandPadding, StandDone, StandFailed
+from stores.sqlite import getAllEvaluations, get_stage, getEvaluationById, getStageById
+from const_var import (
+    StageStatusFailed,
+    StageStatusPadding,
+    StageStatusDone,
+    StandPadding,
+    StandDone,
+    StandFailed,
+)
 import json
 from const_var import (
     StageInit,
@@ -12,6 +19,7 @@ from const_var import (
     StageStatusDone,
     StageStatusFailed,
 )
+
 
 def outputWithHtml():
     """
@@ -111,7 +119,8 @@ def outputStageWithHtml(id: int):
 
     return htmlTable
 
-def status(origin:str) -> str:
+
+def status(origin: str) -> str:
     """
     Get the stand name for origin status.
     """
@@ -123,7 +132,8 @@ def status(origin:str) -> str:
     if origin == StageStatusDone:
         return StandDone
 
-def spiderWithHtml(id:int)->str:
+
+def spiderWithHtml(id: int) -> str:
     eva = getEvaluationById(id)
     if eva is None:
         return """
@@ -140,11 +150,10 @@ def spiderWithHtml(id:int)->str:
             }
         ];
         """
-    result = json.loads(eva['evaluation'])
+    result = json.loads(eva["evaluation"])
 
-    
-    fs = json.loads(result['fluency_score'])
-    
+    fs = json.loads(result["fluency_score"])
+
     return f"""
         let data = [
             {{
@@ -160,9 +169,10 @@ def spiderWithHtml(id:int)->str:
         ];
         """
 
+
 # q: how to return multiple value
 # a: return a tuple
-def processLineWithHtml() :
+def processLineWithHtml():
     """
     Read all records from prompt.db evaluation table and output to html format.
     """
@@ -173,11 +183,24 @@ def processLineWithHtml() :
     svg = ""
     dataSource = ""
     dataList = ""
+
     for idx, record in enumerate(allRecords):
+        # if record.status == 'finish' then add a button(named result) for user to click
+        # when user click this button, it will redirect to a new page(/v1/spider/{record['id']})
+
         svg += f"""
-        <div style="padding-left: 100px;"><button class='btn btn-primary' onclick="window.location.href='/v1/query_stage/{record['id']}'">{record['name']}</button> {record['timestamp']}</div>
+        <div style="padding-left: 100px;"><button class='btn btn-outline-primary btn-sm' onclick="window.location.href='/v1/query_stage/{record['id']}'">{record['name']}</button> <p class="fw-lighter">{record['timestamp']}</p></div>
+        """
+
+        if record["status"] == "finish":
+            svg += f"""
+            <div style="padding-left: 100px;"><button class='btn btn-outline-success btn-sm' onclick="window.location.href='/v1/spider/{record['id']}'">Result</button></div>
+            """
+
+        svg += f"""
         <svg width="600" height="120" style="padding-top: 20px;padding-left: 100px;"></svg>
         """
+
         dataSource += f"""
         var data{idx}=[
             {getStageStatus(record)}
@@ -188,25 +211,26 @@ def processLineWithHtml() :
     # remove last comma
     dataList = dataList[:-1]
     dataSource += f"""var dataSource = [init, {dataList}]"""
-    
+
     return svg, dataSource
+
 
 def getStageStatus(record):
     # print(record)
-    stage = get_stage(record['id'])
+    stage = get_stage(record["id"])
     # result = []
     # print(stage[5])
     # if stage[5] == StageStatusFailed:
-        
+
     # elif stage[5] == StageStatusDone:
     #     return f"""{stageStatus(stage[2])}"""
     # else:
     #     return f"""{{ step: "{stage[2]}", completed: doing }}"""
-    
+
     return f"""{stageStatus(stage=stage[2], status=stage[5])}"""
 
 
-def stageStatus(stage:str, status:str) -> str:
+def stageStatus(stage: str, status: str) -> str:
     """
     There has six status for stage:
         StageInit: The stage is init.
@@ -222,7 +246,7 @@ def stageStatus(stage:str, status:str) -> str:
         StageInit, and completed: status_done. StageSimilarity, and completed: status_done. Residue four status with completed is false.
     And so on.
     """
-    
+
     if stage == StageInit:
         return f"""
         {{ step: "{StageInit}", completed: '{status}' }},
