@@ -189,14 +189,27 @@ def processLineWithHtml():
         # when user click this button, it will redirect to a new page(/v1/spider/{record['id']})
 
         svg += f"""
-        <div style="padding-left: 100px;"><button class='btn btn-outline-primary btn-sm' onclick="window.location.href='/v1/query_stage/{record['id']}'">{record['name']}</button> <p class="fw-lighter">{record['timestamp']}</p></div>
+        <div style="padding-left: 100px;">
+            <div class="row">
+                <div class="col">
+                    <button class='btn btn-outline-primary btn-sm' onclick="window.location.href='/v1/query_stage/{record['id']}'">{record['name']}</button>
+                </div>
+                <div class="col">
+                    <p class="fw-lighter">{record['timestamp']}</p> 
+                </div>
+                
         """
 
         if record["status"] == "finish":
             svg += f"""
-            <div style="padding-left: 100px;"><button class='btn btn-outline-success btn-sm' onclick="window.location.href='/v1/spider/{record['id']}'">Result</button></div>
+                <div class="col">
+                    <div style="padding-left: 100px;"><button class='btn btn-outline-success btn-sm' onclick="window.location.href='/v1/spider/{record['id']}'">Result</button></div>
+                </div>
             """
-
+        svg += f"""
+            </div>
+        </div>
+        """
         svg += f"""
         <svg width="600" height="120" style="padding-top: 20px;padding-left: 100px;"></svg>
         """
