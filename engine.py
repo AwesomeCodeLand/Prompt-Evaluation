@@ -49,7 +49,9 @@ def do_evaluation(id: int, params: GptRequest):
             StageStatusPadding,
         )
         output_log("create stage init", "do_evaluation", DebugLevel)
-        ss_score, style_score = do_similarity(id, params)
+        response, ss_score, style_score = do_similarity(id, params)
+        params.response = response
+
         output_log("create stage similarity", "do_evaluation", DebugLevel)
         fluency = do_fluency(id, params)
         output_log("create stage fluency", "do_evaluation", DebugLevel)
@@ -134,7 +136,7 @@ def do_similarity(id: int, params: GptRequest, restart=False):
         update_stage_status(id, StageStyle, StageStatusDone)
 
         update_stage_status(id, StageInit, StageStatusDone)
-        return ss_score, st_score
+        return response, ss_score, st_score
     except Exception as e:
         print(f"do_similarity error: {e}")
         update_stage_status(id, StageInit, StageStatusFailed, e.__str__())
@@ -190,9 +192,10 @@ def do_understand(id: int, params: GptRequest, restart=False):
                 StageStatusPadding,
             )
         result = understanding_score(
-            params.eval.messages[0].content,
+            params.response,
             params.stand.answer,
         )
+
         update_stage_status(id, StageUnderstand, StageStatusDone)
         return result
     except Exception as e:
@@ -253,13 +256,15 @@ def restart(eid: int, stageId: int):
     try:
         input_str = json.loads(json.loads(status["input"]))
         # print(f"{input_str['eval']}")
-        grt =  GptRequest(eval=Eval(
+        grt = GptRequest(
+            eval=Eval(
                 model=input_str["eval"]["model"],
                 messages=[
                     Message(
                         content=input_str["eval"]["messages"][0]["content"],
-                        role=input_str["eval"]["messages"][0]["role"])
-                    ],
+                        role=input_str["eval"]["messages"][0]["role"],
+                    )
+                ],
                 temperature=input_str["eval"]["temperature"],
                 max_tokens=input_str["eval"]["max_tokens"],
                 frequency_penalty=input_str["eval"]["frequency_penalty"],
@@ -269,20 +274,21 @@ def restart(eid: int, stageId: int):
                 top_n=input_str["eval"]["top_n"],
             ),
             stand=Stand(
-            answer=input_str["stand"]["answer"],
-            )
-            )
+                answer=input_str["stand"]["answer"],
+            ),
+        )
         if not isinstance(grt, GptRequest):
-            raise Exception(f"invalid params type, need GptRequest, but got {type(grt)})")    
-        
+            raise Exception(
+                f"invalid params type, need GptRequest, but got {type(grt)})"
+            )
+
         print(f"{eid} {stageId} restart with {StageStatusPadding}")
         update_stage_status(eid, stageId, StageStatusPadding)
         paddingEvaluationById(eid)
 
-        thread = threading.Thread(target=restart_stage, args=(eid,grt))
+        thread = threading.Thread(target=restart_stage, args=(eid, grt))
         thread.start()
-        
-    
+
     except Exception as e:
         print(f"restart error: {e}")
 

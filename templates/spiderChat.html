@@ -22,7 +22,7 @@
           <button id="saveButton">Save to PNG</button>
         </div>
       </div>
-      <div class="row">
+      <div class="row" style="padding-top: 30px">
         <div class="col align-self-start">
           <figcaption class="blockquote-footer">
             sm: <cite title="Source Title">similarity_score</cite>
@@ -55,7 +55,11 @@
     <svg width="600" height="600"></svg>
     <script>
       let features = ["sm", "st", "fl-c", "fl-g", "fl-e", "fl-l", "di", "un"];
-      {{output}}
+      {
+        {
+          output;
+        }
+      }
 
       console.log(data);
 
