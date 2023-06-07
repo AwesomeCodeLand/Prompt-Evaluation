@@ -218,5 +218,4 @@ if __name__ == "__main__":
         # do something with the config_path variable
         conf = loadConfigure(config_path)
 
-    output_log(f"conf:{conf}")
     uvicorn.run(app, host="0.0.0.0", port=conf.port)
