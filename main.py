@@ -32,6 +32,7 @@ from wrap import chatWithOpenAI
 from fluency import grammar_score, understanding_score
 from divergence import divergence_score
 from stores.sqlite import sqliteInit, createPaddingEvaluation, getAllEvaluations
+from stores.sql import sqlInit
 from engine import do_evaluation, restart
 from result.html import (
     outputWithHtml,
@@ -41,7 +42,7 @@ from result.html import (
 )
 from markupsafe import Markup
 
-sqliteInit()
+# sqliteInit()
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -212,10 +213,13 @@ async def Home(request: Request):
 
 if __name__ == "__main__":
     conf = Conf.from_dict()
+    
     # if config_path in the environment variables, use it
     config_path = os.environ.get(ConfigPath)
     if config_path:
         # do something with the config_path variable
         conf = loadConfigure(config_path)
 
+    sqlInit(conf)
+    
     uvicorn.run(app, host="0.0.0.0", port=conf.port)

@@ -35,3 +35,7 @@ LogInfo = "info"
 LogError = "error"
 LogWarning = "warning"
 LogDebug = "debug"
+
+padding = "padding"
+finish = "finish"
+failed = "failed"

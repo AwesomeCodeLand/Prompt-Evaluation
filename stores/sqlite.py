@@ -1,9 +1,9 @@
 import sqlite3
 import datetime
-
-padding = "padding"
-finish = "finish"
-failed = "failed"
+from const_var import  padding, finish, failed
+# padding = "padding"
+# finish = "finish"
+# failed = "failed"
 
 
 # init sqlite db

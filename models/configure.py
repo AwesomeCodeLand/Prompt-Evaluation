@@ -1,12 +1,14 @@
 class Mongo:
-    def __init__(self, connect: str):
+    def __init__(self, connect: str, db:str):
         self.connect = connect
+        self.db = db
 
 
 class Conf:
     logLevel: str
     verbose: bool
     port: int
+    mongo: Mongo
 
     # a default constructor, without any parameters
     def __init__(
@@ -15,13 +17,15 @@ class Conf:
         verbose: bool = False,
         port: int = 15000,
         db: dict = None,
+        mongo: Mongo = None,
     ):
         self.logLevel = logLevel
         self.verbose = verbose
         self.port = port
+        self.mongo = mongo
         if db:
             if db.get("mongo"):
-                self.mongo = Mongo(db["mongo"]["connect"])
+                self.mongo = Mongo(connect=db["mongo"]["connect"], db=db["mongo"]["name"])
 
     # a class method that creates a Conf object from a dictionary
     @classmethod
