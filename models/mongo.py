@@ -1,4 +1,5 @@
 import datetime
+import time
 from models.sql import SqlBaseModel
 from pymongo import MongoClient
 from const_var import padding, finish, failed
@@ -27,11 +28,21 @@ class MongoModel(SqlBaseModel):
         return None
 
     def createEvaluation(self, values):
+        # Check whether timestamp is in values
+        # If not, add timestamp to values
+        if "timestamp" not in values:
+            values["timestamp"]=int(time.time())
+        if "status" not in values:
+            values["status"]=padding
+        print(f"values:{values}")
         self.evaluationTable.insert_one(values)
         return None
 
     def createPaddingEvaluation(self, values):
         values["status"] = padding
+        if "timestamp" not in values:
+            values["timestamp"]=int(time.time())
+
         self.evaluationTable.insert_one(values)
         return None
 
@@ -72,6 +83,7 @@ class MongoModel(SqlBaseModel):
                 "input": input,
                 "output": output,
                 "status": status,
+                "timestamp":int(time.time())
             }
         )
 
@@ -81,8 +93,9 @@ class MongoModel(SqlBaseModel):
     def getStageByEid(self, eid):
         return self.stageTable.find({"eid": eid})
 
-    def get_state(self, eid, id):
-        return self.stageTable.find({"eid": eid})
+    def get_stage(self, id):
+        print(f"id:{ObjectId(id)}")
+        return self.stageTable.find_one({"_id": ObjectId(id)})
 
     def update_stage(self, id, eid, stage, input, output, status):
         return self.stageTable.update_one(

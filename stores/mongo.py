@@ -66,6 +66,9 @@ def getAllEvaluation():
     return evaluationTable.find().sort("timestamp", -1)
 
 def createStage(values):
+    if "timestamp" not in values:
+        values["timestamp"]=datetime.datetime.now()
+
     stageTable.insert_one(values)
     return None
 
