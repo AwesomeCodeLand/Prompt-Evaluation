@@ -4,3 +4,4 @@ port=8080
 [db]
     [db.mongo]
     connect="mongodb://localhost:27117"
+    name="test"

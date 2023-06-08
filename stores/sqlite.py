@@ -1,6 +1,7 @@
 import sqlite3
 import datetime
-from const_var import  padding, finish, failed
+from const_var import padding, finish, failed
+
 # padding = "padding"
 # finish = "finish"
 # failed = "failed"
@@ -96,7 +97,14 @@ def updateEvaluationById(id, values):
     c = conn.cursor()
     c.execute(
         "UPDATE evaluation SET name = ?, prompt = ?, evaluation = ?, status = ?, timestamp=? WHERE id = ?",
-        (values["name"], values["prompt"], values["evaluation"], values["status"], getNow(), id),
+        (
+            values["name"],
+            values["prompt"],
+            values["evaluation"],
+            values["status"],
+            getNow(),
+            id,
+        ),
     )
     conn.commit()
     conn.close()
@@ -132,6 +140,7 @@ def deleteEvaluationById(id):
     conn.commit()
     conn.close()
 
+
 # update an evaluation record by ID
 def paddingEvaluationById(id):
     conn = sqlite3.connect("db/prompt.db")
@@ -142,7 +151,8 @@ def paddingEvaluationById(id):
     )
     conn.commit()
     conn.close()
-    
+
+
 # retrieve all evaluation records and order by timestamp in descending order
 def getAllEvaluations():
     conn = sqlite3.connect("db/prompt.db")
@@ -242,7 +252,7 @@ def update_stage_status(eid, stage, status, output=" "):
         SET status = ?, output=?, timestamp=?
         WHERE eid = ? and stage = ?
     """,
-        (status,output, getNow(), eid, stage),
+        (status, output, getNow(), eid, stage),
     )
     conn.commit()
 
@@ -255,6 +265,7 @@ def delete_stage(id):
     cursor = conn.cursor()
     cursor.execute("DELETE FROM stage WHERE id = ?", (id,))
     conn.commit()
+
 
 def getNow():
     """

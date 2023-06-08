@@ -41,11 +41,26 @@ from result.html import (
     processLineWithHtml,
 )
 from markupsafe import Markup
+from models.sql import SqlBaseModel
 
 # sqliteInit()
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
+
+conf = Conf.from_dict()
+# sqlModel
+# if config_path in the environment variables, use it
+config_path = os.environ.get(ConfigPath)
+if config_path:
+    # do something with the config_path variable
+    conf = loadConfigure(config_path)
+
+try:
+    sqlModel = sqlInit(conf)
+except Exception as e:
+    output_log(f"sqlInit error: {e}", level="error")
+    os._exit(1)
 
 
 @app.post(RouterSimilarity)
@@ -162,12 +177,18 @@ def Divergence(params: GptRequest):
 def Evaluation(name: str, params: GptRequest):
     output_log(f"new evaluation {name}", RouterEvaluation, "info")
 
-    id = createPaddingEvaluation(
+    id = sqlModel.createEvaluation(
         {
             "name": name,
             "prompt": params.eval.messages[0].content,
         }
     )
+    # id = createPaddingEvaluation(
+    #     {
+    #         "name": name,
+    #         "prompt": params.eval.messages[0].content,
+    #     }
+    # )
 
     thread = threading.Thread(target=do_evaluation, args=(id, params))
     thread.start()
@@ -212,14 +233,4 @@ async def Home(request: Request):
 
 
 if __name__ == "__main__":
-    conf = Conf.from_dict()
-    
-    # if config_path in the environment variables, use it
-    config_path = os.environ.get(ConfigPath)
-    if config_path:
-        # do something with the config_path variable
-        conf = loadConfigure(config_path)
-
-    sqlInit(conf)
-    
     uvicorn.run(app, host="0.0.0.0", port=conf.port)
