@@ -42,6 +42,7 @@ from result.html import (
 )
 from markupsafe import Markup
 from models.sql import SqlBaseModel
+from dataBus.db import setSqlDB
 
 # sqliteInit()
 
@@ -58,6 +59,7 @@ if config_path:
 
 try:
     sqlModel = sqlInit(conf)
+    setSqlDB(sqlModel)
 except Exception as e:
     output_log(f"sqlInit error: {e}", level="error")
     os._exit(1)
@@ -183,12 +185,8 @@ def Evaluation(name: str, params: GptRequest):
             "prompt": params.eval.messages[0].content,
         }
     )
-    # id = createPaddingEvaluation(
-    #     {
-    #         "name": name,
-    #         "prompt": params.eval.messages[0].content,
-    #     }
-    # )
+    
+    output_log(f"new evaluation {name} id: {id}", RouterEvaluation, "info")
 
     thread = threading.Thread(target=do_evaluation, args=(id, params))
     thread.start()

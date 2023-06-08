@@ -1,0 +1,7 @@
+logLevel="info"
+verbose=false
+port=8080
+[db]
+    [db.mongo]
+    connect="mongodb+srv://127.0.0.1"
+    name="prompt-evaluation"

@@ -34,14 +34,15 @@ from const_var import (
     StageStatusDone,
     StageStatusFailed,
 )
-
+from dataBus.db import SqlDB
 
 def do_evaluation(id: int, params: GptRequest):
     output_log(params, "do_evaluation", DebugLevel)
     # get similarity score
     try:
         output_log("create stage similarity", "do_evaluation", DebugLevel)
-        create_stage(
+
+        SqlDB().create_stage(
             id,
             StageInit,
             json.dumps(params, cls=GptRequestEncoder),
@@ -119,9 +120,9 @@ def do_similarity(id: int, params: GptRequest, restart=False):
             )
         )
         if restart:
-            update_stage_status(id, StageSimilarity, StageStatusPadding)
+            SqlDB().update_stage_status(id, StageSimilarity, StageStatusPadding)
         else:
-            create_stage(
+            SqlDB().create_stage(
                 id,
                 StageSimilarity,
                 json.dumps(params, cls=GptRequestEncoder),
@@ -152,7 +153,7 @@ def do_fluency(id: int, params: GptRequest, restart=False):
     """
     try:
         if restart:
-            update_stage_status(id, StageFluency, StageStatusPadding)
+            SqlDB().update_stage_status(id, StageFluency, StageStatusPadding)
         else:
             create_stage(
                 id,
@@ -166,10 +167,10 @@ def do_fluency(id: int, params: GptRequest, restart=False):
             params.eval.messages[0].content,
         )
 
-        update_stage_status(id, StageFluency, StageStatusDone)
+        SqlDB().update_stage_status(id, StageFluency, StageStatusDone)
         return result
     except Exception as e:
-        update_stage_status(id, StageFluency, StageStatusFailed)
+        SqlDB().update_stage_status(id, StageFluency, StageStatusFailed)
         raise FluencyScoreException(e.__str__())
 
 
@@ -182,9 +183,9 @@ def do_understand(id: int, params: GptRequest, restart=False):
     """
     try:
         if restart:
-            update_stage_status(id, StageUnderstand, StageStatusPadding)
+            SqlDB().update_stage_status(id, StageUnderstand, StageStatusPadding)
         else:
-            create_stage(
+            SqlDB().create_stage(
                 id,
                 StageUnderstand,
                 json.dumps(params, cls=GptRequestEncoder),
@@ -196,10 +197,10 @@ def do_understand(id: int, params: GptRequest, restart=False):
             params.stand.answer,
         )
 
-        update_stage_status(id, StageUnderstand, StageStatusDone)
+        SqlDB().update_stage_status(id, StageUnderstand, StageStatusDone)
         return result
     except Exception as e:
-        update_stage_status(id, StageUnderstand, StageStatusFailed)
+        SqlDB().update_stage_status(id, StageUnderstand, StageStatusFailed)
         raise UnderstandScoreException(e.__str__())
 
 
@@ -212,9 +213,9 @@ def do_divergence(id: int, params: GptRequest, restart=False):
     """
     try:
         if restart:
-            update_stage_status(id, StageDivergence, StageStatusPadding)
+            SqlDB().update_stage_status(id, StageDivergence, StageStatusPadding)
         else:
-            create_stage(
+            SqlDB().create_stage(
                 id,
                 StageDivergence,
                 json.dumps(params, cls=GptRequestEncoder),
@@ -225,10 +226,10 @@ def do_divergence(id: int, params: GptRequest, restart=False):
             params.eval.messages[0].content,
             params.stand.answer,
         )
-        update_stage_status(id, StageDivergence, StageStatusDone)
+        SqlDB().update_stage_status(id, StageDivergence, StageStatusDone)
         return result
     except Exception as e:
-        update_stage_status(id, StageDivergence, StageStatusFailed)
+        SqlDB().update_stage_status(id, StageDivergence, StageStatusFailed)
         raise DivergenceScoreException(e.__str__())
 
 
@@ -283,7 +284,7 @@ def restart(eid: int, stageId: int):
             )
 
         print(f"{eid} {stageId} restart with {StageStatusPadding}")
-        update_stage_status(eid, stageId, StageStatusPadding)
+        SqlDB().update_stage_status(eid, stageId, StageStatusPadding)
         paddingEvaluationById(eid)
 
         thread = threading.Thread(target=restart_stage, args=(eid, grt))
