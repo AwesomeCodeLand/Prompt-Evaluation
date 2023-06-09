@@ -99,8 +99,7 @@ class MongoModel(SqlBaseModel):
 
     def get_stage(self, eid):
         return (
-            self.stageTable.find({"eid": eid})
-            .sort("timestamp", -1)
+            self.stageTable.find_one({"eid": eid}, sort=[("timestamp", -1)])
         )
 
     def update_stage(self, id, eid, stage, input, output, status):
