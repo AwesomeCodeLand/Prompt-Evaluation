@@ -4,6 +4,7 @@ from models.sql import SqlBaseModel
 from pymongo import MongoClient
 from const_var import padding, finish, failed
 from bson.objectid import ObjectId
+from log import output_log
 
 
 class MongoModel(SqlBaseModel):
@@ -31,17 +32,17 @@ class MongoModel(SqlBaseModel):
         # Check whether timestamp is in values
         # If not, add timestamp to values
         if "timestamp" not in values:
-            values["timestamp"]=int(time.time())
+            values["timestamp"] = int(time.time())
         if "status" not in values:
-            values["status"]=padding
+            values["status"] = padding
         print(f"values:{values}")
-        self.evaluationTable.insert_one(values)
-        return None
+
+        return str(self.evaluationTable.insert_one(values).inserted_id)
 
     def createPaddingEvaluation(self, values):
         values["status"] = padding
         if "timestamp" not in values:
-            values["timestamp"]=int(time.time())
+            values["timestamp"] = int(time.time())
 
         self.evaluationTable.insert_one(values)
         return None
@@ -75,17 +76,20 @@ class MongoModel(SqlBaseModel):
     def getAllEvaluations(self):
         return self.evaluationTable.find()
 
-    def create_stage(self, eid: int, stage: str, input: str, output: str, status: str):
-        return self.stageTable.insert_one(
+    def create_stage(self, eid: str, stage: str, input: str, output: str, status: str):
+        result = self.stageTable.insert_one(
             {
                 "eid": eid,
                 "stage": stage,
                 "input": input,
                 "output": output,
                 "status": status,
-                "timestamp":int(time.time())
+                "timestamp": int(time.time()),
             }
         )
+
+        output_log(f"create_stage result:{result}", level="info")
+        return
 
     def getStageById(self, eid, id):
         return self.stageTable.find_one({"eid": eid, "_id": ObjectId(id)})
@@ -93,9 +97,12 @@ class MongoModel(SqlBaseModel):
     def getStageByEid(self, eid):
         return self.stageTable.find({"eid": eid})
 
-    def get_stage(self, id):
-        print(f"id:{ObjectId(id)}")
-        return self.stageTable.find_one({"_id": ObjectId(id)})
+    def get_stage(self, eid):
+        return (
+            self.stageTable.find({"eid": ObjectId(eid)})
+            .sort("timestamp", -1)
+            .limit(1)[0]
+        )
 
     def update_stage(self, id, eid, stage, input, output, status):
         return self.stageTable.update_one(

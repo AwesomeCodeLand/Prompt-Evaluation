@@ -32,7 +32,7 @@ class SqlBaseModel:
     def getAllEvaluations(self):
         pass
 
-    def create_stage(self, eid: int, stage: str, input: str, output: str, status: str):
+    def create_stage(self, eid: str, stage: str, input: str, output: str, status: str):
         pass
 
     def getStageById(sefl, eid, id):

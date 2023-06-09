@@ -22,6 +22,7 @@ from const_var import (
 from dataBus.db import SqlDB
 from bson.objectid import ObjectId
 
+
 def outputWithHtml():
     """
     Read all records from prompt.db evaluation table and output to html format.
@@ -82,23 +83,29 @@ def outputStageWithHtml(id: int):
         <div class="col-1" style="word-break: break-all;">TIMESTAMP</div>
     """
 
+    # check if the id in stage, if not check _id in stage
+    if "id" in stage:
+        id = stage["id"]
+    else:
+        id = stage["_id"]
+
     htmlTable += f"""
         <hr/>
-        <div class="col-1" style="word-break: break-all;">{stage[0]}</div>
-        <div class="col-1" style="word-break: break-all;">{stage[1]}</div>
-        <div class="col-1" style="word-break: break-all;">{stage[2]}</div>
-        <div class="col-3" style="word-break: break-all;">{stage[3]
+        <div class="col-1" style="word-break: break-all;">{id}</div>
+        <div class="col-1" style="word-break: break-all;">{stage['eid']}</div>
+        <div class="col-1" style="word-break: break-all;">{stage['stage']}</div>
+        <div class="col-3" style="word-break: break-all;">{stage['input']
         .encode("utf-8")
         .decode("unicode_escape")
         .encode("utf-8")
         .decode("unicode_escape")}</div>
-        <div class="col-3" style="word-break: break-all;">{stage[4]
+        <div class="col-3" style="word-break: break-all;">{stage['output']
         .encode("utf-8")
         .decode("unicode_escape")
         .encode("utf-8")
         .decode("unicode_escape")}</div>
         """
-    if stage[5] == StageStatusFailed:
+    if stage["status"] == StageStatusFailed:
         htmlTable += f"""
         <div class="col-2">
             <form method="POST" action="/v1/stage_restart/{id}/{stage[0]}">
@@ -109,11 +116,11 @@ def outputStageWithHtml(id: int):
         """
     else:
         htmlTable += f"""
-        <div class="col-2" style="word-break: break-all;">{status(stage[5])}</div>
+        <div class="col-2" style="word-break: break-all;">{status(stage['status'])}</div>
         """
 
     htmlTable += f"""
-        <div class="col-1" style="word-break: break-all;">{stage[6]}</div>
+        <div class="col-1" style="word-break: break-all;">{stage['timestamp']}</div>
         <hr/>
         """
     htmlTable += """</div>"""
@@ -177,7 +184,7 @@ def processLineWithHtml():
     """
     Read all records from prompt.db evaluation table and output to html format.
     """
-    
+
     allRecords = SqlDB().getAllEvaluations()
     # Create the HTML table
 
@@ -190,6 +197,7 @@ def processLineWithHtml():
         # when user click this button, it will redirect to a new page(/v1/spider/{record['id']})
         # If id in record, then get record['id']
         # If _id in record, then get record['_id']
+
         id = ""
         if "id" in record:
             id = record["id"]
@@ -238,14 +246,13 @@ def processLineWithHtml():
 
 
 def getStageStatus(record):
-    
     if "id" in record:
         id = record["id"]
     if "_id" in record:
-        id = str(record["_id"])    
+        id = str(record["_id"])
     stage = SqlDB().get_stage(id)
     print(f"{stage}  {id}")
-    return f"""{stageStatus(stage=stage[2], status=stage[5])}"""
+    return f"""{stageStatus(stage=stage['stage'], status=stage['status'])}"""
 
 
 def stageStatus(stage: str, status: str) -> str:

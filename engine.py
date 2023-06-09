@@ -36,7 +36,8 @@ from const_var import (
 )
 from dataBus.db import SqlDB
 
-def do_evaluation(id: int, params: GptRequest):
+
+def do_evaluation(id: str, params: GptRequest):
     output_log(params, "do_evaluation", DebugLevel)
     # get similarity score
     try:

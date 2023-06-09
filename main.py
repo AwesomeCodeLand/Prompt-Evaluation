@@ -185,7 +185,7 @@ def Evaluation(name: str, params: GptRequest):
             "prompt": params.eval.messages[0].content,
         }
     )
-    
+
     output_log(f"new evaluation {name} id: {id}", RouterEvaluation, "info")
 
     thread = threading.Thread(target=do_evaluation, args=(id, params))
@@ -207,7 +207,7 @@ async def QueryStatus(request: Request):
 
 
 @app.get(RouterQueryStage, response_class=HTMLResponse)
-async def QueryStage(id: int, request: Request):
+async def QueryStage(id: str, request: Request):
     return templates.TemplateResponse(
         "stage.html", {"request": request, "output": Markup(outputStageWithHtml(id))}
     )

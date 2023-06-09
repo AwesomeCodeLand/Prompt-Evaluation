@@ -156,15 +156,16 @@ class SqliteModel(SqlBaseModel):
             )
         return evaluations
 
-    def create_stage(self, eid: int, stage: str, input: str, output: str, status: str):
+    def create_stage(self, eid: str, stage: str, input: str, output: str, status: str):
         conn = sqlite3.connect("db/prompt.db")
         cursor = conn.cursor()
+        _eid = int(eid)
         cursor.execute(
             """
             INSERT INTO stage (eid, stage, input, output, status)
             VALUES (?, ?, ?, ?, ?)
         """,
-            (eid, stage, input, output, status),
+            (_eid, stage, input, output, status),
         )
         conn.commit()
         return cursor.lastrowid
