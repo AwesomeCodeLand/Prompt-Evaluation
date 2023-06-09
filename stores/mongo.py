@@ -76,7 +76,7 @@ def getStageById(id):
     return stageTable.find_one({"_id":ObjectId(id)})
 
 def get_stage(eid):
-    return stageTable.find({"eid":eid})
+    return stageTable.find({"eid":eid}).sort("timestamp", -1)
 
 def update_stage(id, eid, stage, input, output, status):
     stageTable.update_one({"id":ObjectId(id)}, {"$set":{ "eid":eid,"stage":stage, "input":input, "output":output, "status":status}})
