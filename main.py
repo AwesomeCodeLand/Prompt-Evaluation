@@ -32,6 +32,7 @@ from wrap import chatWithOpenAI
 from fluency import grammar_score, understanding_score
 from divergence import divergence_score
 from stores.sqlite import sqliteInit, createPaddingEvaluation, getAllEvaluations
+from stores.sql import sqlInit
 from engine import do_evaluation, restart
 from result.html import (
     outputWithHtml,
@@ -40,11 +41,28 @@ from result.html import (
     processLineWithHtml,
 )
 from markupsafe import Markup
+from models.sql import SqlBaseModel
+from dataBus.db import setSqlDB
 
-sqliteInit()
+# sqliteInit()
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
+
+conf = Conf.from_dict()
+# sqlModel
+# if config_path in the environment variables, use it
+config_path = os.environ.get(ConfigPath)
+if config_path:
+    # do something with the config_path variable
+    conf = loadConfigure(config_path)
+
+try:
+    sqlModel = sqlInit(conf)
+    setSqlDB(sqlModel)
+except Exception as e:
+    output_log(f"sqlInit error: {e}", level="error")
+    os._exit(1)
 
 
 @app.post(RouterSimilarity)
@@ -161,12 +179,14 @@ def Divergence(params: GptRequest):
 def Evaluation(name: str, params: GptRequest):
     output_log(f"new evaluation {name}", RouterEvaluation, "info")
 
-    id = createPaddingEvaluation(
+    id = sqlModel.createEvaluation(
         {
             "name": name,
             "prompt": params.eval.messages[0].content,
         }
     )
+
+    output_log(f"new evaluation {name} id: {id}", RouterEvaluation, "info")
 
     thread = threading.Thread(target=do_evaluation, args=(id, params))
     thread.start()
@@ -187,7 +207,7 @@ async def QueryStatus(request: Request):
 
 
 @app.get(RouterQueryStage, response_class=HTMLResponse)
-async def QueryStage(id: int, request: Request):
+async def QueryStage(id: str, request: Request):
     return templates.TemplateResponse(
         "stage.html", {"request": request, "output": Markup(outputStageWithHtml(id))}
     )
@@ -211,12 +231,4 @@ async def Home(request: Request):
 
 
 if __name__ == "__main__":
-    conf = Conf.from_dict()
-    # if config_path in the environment variables, use it
-    config_path = os.environ.get(ConfigPath)
-    if config_path:
-        # do something with the config_path variable
-        conf = loadConfigure(config_path)
-
-    output_log(f"conf:{conf}")
     uvicorn.run(app, host="0.0.0.0", port=conf.port)
