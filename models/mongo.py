@@ -74,7 +74,7 @@ class MongoModel(SqlBaseModel):
         )
 
     def getAllEvaluations(self):
-        return self.evaluationTable.find()
+        return self.evaluationTable.find().sort("timestamp", -1)
 
     def create_stage(self, eid: str, stage: str, input: str, output: str, status: str):
         result = self.stageTable.insert_one(
