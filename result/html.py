@@ -90,9 +90,9 @@ def outputStageWithHtml(id: int):
 
     htmlTable += f"""
         <hr/>
-        <div class="col-1" style="word-break: break-all;">{id}</div>
-        <div class="col-1" style="word-break: break-all;">{stage['eid']}</div>
-        <div class="col-1" style="word-break: break-all;">{stage['stage']}</div>
+        <div class="col-2" style="word-break: break-all;">{id}</div>
+        <div class="col-2" style="word-break: break-all;">{stage['eid']}</div>
+        <div class="col-2" style="word-break: break-all;">{stage['stage']}</div>
         """
     if stage["status"] == StageStatusFailed:
         htmlTable += f"""
@@ -108,8 +108,11 @@ def outputStageWithHtml(id: int):
         <div class="col-2" style="word-break: break-all;">{status(stage['status'])}</div>
         """
 
+    time = datetime.fromtimestamp(stage['timestamp']).strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
     htmlTable += f"""
-        <div class="col-1" style="word-break: break-all;">{stage['timestamp']}</div>
+        <div class="col-2" style="word-break: break-all;">{time}</div>
         <hr/>
         """
     htmlTable += """</div>"""
