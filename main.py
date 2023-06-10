@@ -9,6 +9,8 @@ from utils.configure import loadConfigure
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
+
 from models.http import GptRequest, Eval
 
 # from tools import chatWithOpenAI
@@ -229,6 +231,7 @@ async def Spider(id: int, request: Request):
 async def Home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
+app.mount("/", StaticFiles(directory="static"), name="static")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=conf.port)

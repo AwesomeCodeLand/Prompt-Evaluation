@@ -21,7 +21,7 @@ from const_var import (
 )
 from dataBus.db import SqlDB
 from bson.objectid import ObjectId
-
+from datetime import datetime
 
 def outputWithHtml():
     """
@@ -218,14 +218,17 @@ def processLineWithHtml():
             # id is ObjectId type, so need conver it to str
             id = str(record["_id"])
 
+        time = datetime.fromtimestamp(record["timestamp"]).strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
         svg += f"""
         <div style="padding-left: 100px;">
             <div class="row">
                 <div class="col-2">
                     <button class='btn btn-outline-primary btn-sm' onclick="window.location.href='/v1/query_stage/{id}'">{record['name']}</button>
                 </div>
-                <div class="col-2">
-                    <p class="fw-lighter">{record['timestamp']}</p> 
+                <div class="col-3">
+                    <p class="fw-lighter">{time}</p> 
                 </div>
                 
         """
